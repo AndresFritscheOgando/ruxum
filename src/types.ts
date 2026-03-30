@@ -24,6 +24,7 @@ export interface NextjsConfig {
   dbProvider: DbProvider;
   nextAuth: boolean;
   jest: boolean;
+  rspc: boolean;
 }
 
 export interface ScaffoldConfig {

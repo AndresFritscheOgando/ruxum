@@ -1,0 +1,122 @@
+---
+const scaffoldTypes = [
+  {
+    label: "RUST API",
+    description: "A production-ready Axum web server with async handlers, typed errors, and structured logging.",
+    items: ["◆ axum", "◆ tokio", "◆ sqlx / seaorm", "◆ jwt (optional)"],
+    featured: false,
+  },
+  {
+    label: "NEXT.JS APP",
+    description: "A full Next.js 15 application with App Router, TypeScript, and optional Tailwind CSS.",
+    items: ["◆ next.js 15", "◆ typescript", "◆ tailwind (optional)", "◆ app router"],
+    featured: false,
+  },
+  {
+    label: "FULL-STACK",
+    description: "Both together — a Rust/Axum API and a Next.js frontend, wired up and ready to ship.",
+    items: ["◆ axum + next.js", "◆ sqlx / seaorm", "◆ jwt auth", "◆ typescript"],
+    featured: true,
+  },
+];
+
+const technologies = [
+  { name: "axum",       tagline: "Ergonomic async Rust web framework built on Tokio and Tower." },
+  { name: "next.js",    tagline: "React framework with App Router, SSR, and streaming." },
+  { name: "sqlx",       tagline: "Compile-time checked SQL queries. No ORM overhead." },
+  { name: "seaorm",     tagline: "Async, dynamic ORM for Rust. An alternative to SQLx." },
+  { name: "postgresql", tagline: "The world's most advanced open-source relational database." },
+  { name: "mysql",      tagline: "High-performance, widely-used relational database." },
+  { name: "sqlite",     tagline: "Zero-config embedded database. Perfect for development." },
+  { name: "jwt auth",   tagline: "Stateless authentication tokens. Full middleware included." },
+];
+---
+
+<section class="py-20 px-6 border-b border-border">
+  <div class="max-w-[1280px] mx-auto">
+
+    <!-- Section header -->
+    <div class="flex items-center gap-2.5 mb-3">
+      <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
+      <h2 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
+        EVERYTHING YOU NEED
+      </h2>
+    </div>
+    <p class="text-[1.0625rem] leading-[1.6] text-ink-2 max-w-[560px] mb-12">
+      Pick the pieces. Skip the rest. Every choice is made in the interactive
+      wizard — no config files, no guesswork.
+    </p>
+
+    <!-- Scaffold type cards — mosaic grid (gap: 1px trick) -->
+    <div class="grid grid-cols-3 gap-px bg-border border border-border mb-16">
+      {scaffoldTypes.map((type) => (
+        <div class={`relative flex flex-col gap-3.5 p-7 transition-all duration-200
+          ${type.featured
+            ? "bg-surface-2 border-t-2 border-t-orange hover:bg-surface-3"
+            : "bg-surface hover:bg-surface-2 hover:[box-shadow:inset_2px_0_0_var(--color-orange)]"
+          }`}>
+
+          {type.featured && (
+            <div class="absolute top-0 right-0 px-2.5 py-1
+                        font-mono text-[0.5625rem] font-semibold text-orange
+                        uppercase tracking-[0.08em]
+                        border-l border-b border-orange/30 bg-canvas">
+              ★ recommended
+            </div>
+          )}
+
+          <div class="font-mono text-[0.875rem] font-semibold text-ink tracking-[0.02em]">
+            {type.label}
+          </div>
+
+          <p class="text-[0.875rem] leading-[1.55] text-ink-3 flex-1">
+            {type.description}
+          </p>
+
+          <ul class="flex flex-col gap-1.5 pt-2.5 border-t border-border list-none mt-auto">
+            {type.items.map((item) => (
+              <li class="font-mono text-[0.75rem] text-ink-2">{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- Tech grid header -->
+    <div class="flex items-center gap-2.5 mb-5">
+      <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
+      <h3 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
+        TECHNOLOGIES INCLUDED
+      </h3>
+    </div>
+
+    <!-- Tech cards — mosaic grid -->
+    <div class="grid grid-cols-4 gap-px bg-border border border-border">
+      {technologies.map((tech) => (
+        <div class="flex flex-col gap-2 p-5 bg-surface hover:bg-surface-2
+                    hover:[box-shadow:inset_2px_0_0_var(--color-orange)]
+                    transition-all duration-200">
+          <div class="flex items-center gap-[0.4375rem] font-mono text-[0.8125rem] font-semibold text-ink">
+            <span class="text-orange text-[0.625rem] shrink-0" aria-hidden="true">◆</span>
+            {tech.name}
+          </div>
+          <p class="text-[0.8125rem] leading-[1.5] text-ink-3">{tech.tagline}</p>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  @media (max-width: 960px) {
+    .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .grid-cols-3 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    section { padding-left: 1rem; padding-right: 1rem; padding-top: 3.5rem; padding-bottom: 3.5rem; }
+    .grid-cols-4 { grid-template-columns: 1fr; }
+  }
+</style>

@@ -78,6 +78,7 @@ pub struct NextjsConfig {
     pub db_provider: DbProvider,
     pub next_auth: bool,
     pub jest: bool,
+    pub rspc: bool,
 }
 
 #[derive(Debug, Clone)]

@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+target/
 
 # Environment
 .env
@@ -20,6 +21,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+.interface-design/
 
 # Claude
 .claude/

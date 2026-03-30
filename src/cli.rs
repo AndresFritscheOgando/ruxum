@@ -48,6 +48,10 @@ pub struct Args {
     #[arg(long)]
     pub jest: bool,
 
+    /// Add rspc (type-safe API for Rust + Next.js)
+    #[arg(long)]
+    pub rspc: bool,
+
     // --- Install options ---
     /// Run npm install / cargo build after scaffolding
     #[arg(long)]

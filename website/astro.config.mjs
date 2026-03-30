@@ -1,20 +1,16 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 
-// https://astro.build/config
 export default defineConfig({
+	vite: {
+		plugins: [tailwindcss()],
+	},
 	integrations: [
 		starlight({
 			title: 'create-ruxum-app',
-			defaultLocale: 'es',
-			locales: {
-				es: {
-					label: 'Español',
-					lang: 'es',
-				},
-			},
+			customCss: ['./src/styles/custom.css'],
 			social: [
 				{
 					icon: 'github',
@@ -24,19 +20,29 @@ export default defineConfig({
 			],
 			sidebar: [
 				{
-					label: 'Comenzar',
+					label: 'Getting Started',
 					items: [
-						{ label: 'Introducción', slug: 'intro' },
-						{ label: 'Instalación', slug: 'instalacion' },
+						{ label: 'Introduction', slug: 'introduction' },
+						{ label: 'Installation', slug: 'installation' },
 					],
 				},
 				{
-					label: 'Guías',
-					autogenerate: { directory: 'guias' },
+					label: 'Scaffold Types',
+					items: [
+						{ label: 'Rust Axum API', slug: 'scaffold/rust' },
+						{ label: 'Next.js App', slug: 'scaffold/nextjs' },
+						{ label: 'Full-stack', slug: 'scaffold/fullstack' },
+					],
+				},
+				{
+					label: 'Configuration',
+					items: [
+						{ label: 'Database', slug: 'configuration/database' },
+						{ label: 'Authentication', slug: 'configuration/authentication' },
+					],
 				},
 			],
 		}),
 		react(),
-		tailwind(),
 	],
 });

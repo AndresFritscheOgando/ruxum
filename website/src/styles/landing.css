@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+
+/* ── Design tokens ────────────────────────────────────── */
+@theme {
+  /* Surfaces */
+  --color-canvas:    #0a0a0a;
+  --color-surface:   #111111;
+  --color-surface-2: #171717;
+  --color-surface-3: #1f1f1f;
+
+  /* Text hierarchy */
+  --color-ink:   #eeeeee;
+  --color-ink-2: #aaaaaa;
+  --color-ink-3: #666666;
+  --color-ink-4: #333333;
+
+  /* Borders (rgba — use as bg on gap containers) */
+  --color-border:   rgba(255, 255, 255, 0.06);
+  --color-border-2: rgba(255, 255, 255, 0.12);
+  --color-border-3: rgba(255, 255, 255, 0.22);
+
+  /* Brand */
+  --color-orange:      #f44336;
+  --color-orange-glow: rgba(244, 67, 54, 0.35);
+  --color-green:       #00ff41;
+  --color-green-dim:   rgba(0, 255, 65, 0.55);
+
+  /* Fonts */
+  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Space Grotesk", sans-serif;
+
+  /* Custom animations */
+  --animate-indicator-pulse: indicator-pulse 3s ease-in-out infinite;
+}
+
+@keyframes indicator-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* ── Base reset ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; }
+body  {
+  background: #0a0a0a;
+  color: #eeeeee;
+  font-family: "Space Grotesk", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+::selection { background: rgba(244, 67, 54, 0.35); color: #eeeeee; }
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; }
+::-webkit-scrollbar-thumb:hover { background: #3d3d3d; }
+
+/* ── CRT effects (can't be expressed as Tailwind classes) */
+.crt-grid {
+  background-image:
+    linear-gradient(rgba(0, 255, 65, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.crt-scanlines {
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.06) 50%);
+  background-size: 100% 3px;
+}
+.crt-vignette {
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+}
+
+/* ── Fluid headline (clamp can't be a Tailwind class) ── */
+.headline-fluid {
+  font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+}
+
+/* ── Hero ambient glow ────────────────────────────────── */
+.hero-ambient {
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244, 67, 54, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── CRT grid with bottom fade ───────────────────────── */
+.crt-grid--faded {
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.15) 100%);
+}

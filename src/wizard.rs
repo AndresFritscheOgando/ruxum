@@ -190,6 +190,15 @@ pub fn resolve(args: Args) -> Result<ScaffoldConfig> {
                 .interact()?
         };
 
+        let rspc = if args.rspc {
+            true
+        } else {
+            Confirm::with_theme(&theme)
+                .with_prompt("Add rspc (type-safe API for Rust + Next.js)?")
+                .default(true)
+                .interact()?
+        };
+
         Some(NextjsConfig {
             tailwind,
             shadcn,
@@ -197,6 +206,7 @@ pub fn resolve(args: Args) -> Result<ScaffoldConfig> {
             db_provider,
             next_auth,
             jest,
+            rspc,
         })
     } else {
         None
@@ -295,6 +305,7 @@ fn print_summary(
             row("NextAuth:", if n.next_auth { "Yes" } else { "No" })
         );
         println!("{}", row("Jest:", if n.jest { "Yes" } else { "No" }));
+        println!("{}", row("rspc API:", if n.rspc { "Yes" } else { "No" }));
     }
 
     println!("{}", bottom);

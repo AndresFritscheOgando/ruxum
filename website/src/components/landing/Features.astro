@@ -1,0 +1,75 @@
+---
+const features = [
+  {
+    marker: "01",
+    title: "Zero boilerplate",
+    body: "Start with a complete, production-ready project structure. Typed errors, structured logging, env config, and CORS middleware are all wired up on day zero.",
+  },
+  {
+    marker: "02",
+    title: "Type-safe end-to-end",
+    body: "Rust's compile-time guarantees on the backend. TypeScript on the frontend. Two type systems working together so runtime surprises stay rare.",
+  },
+  {
+    marker: "03",
+    title: "Your choices, instantly",
+    body: "Pick your database, ORM, authentication, and scaffold type in an interactive wizard. You answer; the scaffolder builds the exact project you described.",
+  },
+  {
+    marker: "04",
+    title: "Deploy-ready from the start",
+    body: "Structured tracing with tracing-subscriber, environment-aware config via dotenvy, and tower-http middleware — the production checklist is already checked.",
+  },
+];
+---
+
+<section class="py-20 px-6 border-b border-border">
+  <div class="max-w-[1280px] mx-auto">
+
+    <!-- Section header -->
+    <div class="flex items-center gap-2.5 mb-3">
+      <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
+      <h2 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
+        WHY RUXUM?
+      </h2>
+    </div>
+    <p class="text-[1.0625rem] leading-[1.6] text-ink-2 max-w-[560px] mb-12">
+      Setting up a modern Rust web server is tedious. Picking a framework,
+      configuring logging, wiring a database, adding auth — ruxum handles all of
+      it so you can focus on your product.
+    </p>
+
+    <!-- Feature cards — mosaic grid -->
+    <div class="grid grid-cols-2 gap-px bg-border border border-border">
+      {features.map((f) => (
+        <div class="flex flex-col gap-4 p-8 bg-surface hover:bg-surface-2
+                    hover:[box-shadow:inset_2px_0_0_var(--color-orange)]
+                    transition-all duration-200">
+          <div class="flex items-start gap-4">
+            <span class="inline-block font-mono text-[0.5625rem] text-orange/60 tracking-[0.05em]
+                         border border-orange/20 px-1.5 py-0.5 shrink-0 leading-none mt-0.5">
+              {f.marker}
+            </span>
+            <h3 class="font-mono text-[0.9375rem] font-semibold text-ink tracking-[-0.01em]">
+              {f.title}
+            </h3>
+          </div>
+          <p class="text-[0.9375rem] leading-[1.65] text-ink-3 pl-[calc(1rem+2.5ch)]">
+            {f.body}
+          </p>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  @media (max-width: 720px) {
+    .grid-cols-2 { grid-template-columns: 1fr; }
+    section { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  }
+  @media (max-width: 480px) {
+    section { padding-left: 1rem; padding-right: 1rem; }
+  }
+</style>

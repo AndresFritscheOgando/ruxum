@@ -157,3 +157,19 @@ fn print_next_steps(config: &ScaffoldConfig) {
     }
     println!();
 }
+
+pub fn copy_template(
+    template_path: &str,
+    target_path: &Path,
+    variables: &std::collections::HashMap<&str, String>,
+) -> Result<()> {
+    let mut content = std::fs::read_to_string(format!("template/{}", template_path))?;
+    for (key, value) in variables {
+        content = content.replace(&format!("{{{{{}}}}}", key), value);
+    }
+    if let Some(parent) = target_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::write(target_path, content)?;
+    Ok(())
+}

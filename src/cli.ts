@@ -182,6 +182,16 @@ export async function runWizard(): Promise<ScaffoldConfig> {
       process.exit(0);
     }
 
+    const rspc = await p.confirm({
+      message: "Add rspc (type-safe API for Rust + Next.js)?",
+      initialValue: true,
+    });
+
+    if (p.isCancel(rspc)) {
+      p.cancel("Operation cancelled.");
+      process.exit(0);
+    }
+
     nextjs = {
       tailwind: tailwind as boolean,
       shadcn,
@@ -189,6 +199,7 @@ export async function runWizard(): Promise<ScaffoldConfig> {
       dbProvider,
       nextAuth: nextAuth as boolean,
       jest: jest as boolean,
+      rspc: rspc as boolean,
     };
   }
 
