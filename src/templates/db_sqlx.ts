@@ -14,7 +14,7 @@ function sqlxTypes(db: DbChoice): { poolOptions: string; poolType: string; modul
 }
 
 export function buildDbSqlxRs(config: ScaffoldConfig): string {
-  const { poolOptions, poolType, module } = sqlxTypes(config.db);
+  const { poolOptions, poolType, module } = sqlxTypes(config.rust?.db || "sqlx-postgres");
   return `use ${module}::${poolOptions};
 
 pub type Db = sqlx::${poolType};

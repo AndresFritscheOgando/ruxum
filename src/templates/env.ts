@@ -1,8 +1,9 @@
 import { ScaffoldConfig } from "../types";
 
 export function buildEnvExample(config: ScaffoldConfig): string {
-  const { db, auth } = config;
-  const hasDb = db !== "none";
+  const db = config.rust?.db;
+  const auth = config.rust?.auth;
+  const hasDb = db && db !== "none";
 
   let env = `HOST=127.0.0.1
 PORT=3000

@@ -1,0 +1,17 @@
+[package]
+name = "create-ruxum-app"
+version = "0.2.0"
+edition = "2021"
+description = "Scaffold production-ready Rust Axum APIs and Next.js apps"
+license = "MIT"
+
+[[bin]]
+name = "create-ruxum-app"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.6.0", features = ["derive"] }
+dialoguer = "0.12.0"
+console = "0.16.3"
+anyhow = "1.0.102"
+fs_extra = "1.3.0"

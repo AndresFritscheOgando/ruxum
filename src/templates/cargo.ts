@@ -1,7 +1,9 @@
 import { ScaffoldConfig } from "../types";
 
 export function buildCargoToml(config: ScaffoldConfig): string {
-  const { projectName, db, auth } = config;
+  const { projectName } = config;
+  const db = config.rust?.db;
+  const auth = config.rust?.auth;
 
   let toml = `[package]
 name = "${projectName}"

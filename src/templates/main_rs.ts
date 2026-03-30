@@ -1,8 +1,9 @@
 import { ScaffoldConfig } from "../types";
 
 export function buildMainRs(config: ScaffoldConfig): string {
-  const { db, auth } = config;
-  const hasDb = db !== "none";
+  const db = config.rust?.db;
+  const auth = config.rust?.auth;
+  const hasDb = db && db !== "none";
 
   const mods = [
     "mod config;",
