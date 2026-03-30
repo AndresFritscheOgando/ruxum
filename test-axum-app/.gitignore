@@ -1,0 +1,59 @@
+# Build output
+target/
+dist/
+
+# Cargo lock (keep for binaries, ignore for libraries)
+# Cargo.lock  # Uncomment this line if this is a library crate
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Coverage and test artifacts
+coverage/
+*.profraw
+lcov.info
+tarpaulin-report.html
+tarpaulin-report.json
+
+# Benchmark output
+criterion/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
