@@ -1,6 +1,6 @@
 {
   "name": "create-ruxum-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Scaffold a production-ready Rust Axum API — npx create-ruxum-app@latest",
   "bin": {
     "create-ruxum-app": "./dist/index.js"
