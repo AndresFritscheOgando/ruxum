@@ -70,7 +70,8 @@ body  {
   font-family: "Space Grotesk", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  width: 100%;
+  overflow-x: clip;
 }
 ::selection { background: rgba(244, 67, 54, 0.35); color: #eeeeee; }
 ::-webkit-scrollbar       { width: 5px; }
