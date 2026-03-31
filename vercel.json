@@ -1,5 +1,6 @@
 {
   "framework": "astro",
+  "installCommand": "npm install && npm --prefix website install",
   "buildCommand": "npm run docs:build",
   "outputDirectory": "website/dist"
 }
