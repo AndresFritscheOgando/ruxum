@@ -6,7 +6,10 @@ export type DbChoice =
   | "sqlx-mysql"
   | "sqlx-sqlite"
   | "seaorm-postgres"
-  | "seaorm-mysql";
+  | "seaorm-mysql"
+  | "diesel-postgres"
+  | "diesel-mysql"
+  | "diesel-sqlite";
 
 export type OrmChoice = "none" | "prisma" | "drizzle";
 

@@ -1,64 +1,170 @@
 ---
 ---
 
-<footer class="relative py-14 px-6 border-t border-border overflow-hidden">
-  <!-- Thin orange gradient line at top -->
-  <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-orange/20 to-transparent" aria-hidden="true"></div>
+<footer class="relative px-6 pt-16 pb-0 overflow-hidden border-t border-border">
 
-  <div class="max-w-[1280px] mx-auto flex flex-col items-center gap-6 text-center">
+  <!-- Gradient line at very top -->
+  <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-orange/30 to-transparent" aria-hidden="true"></div>
 
-    <!-- Brand -->
-    <div class="flex items-center gap-2 font-mono text-[0.8125rem]">
-      <span class="text-orange text-[0.625rem]" aria-hidden="true">◆</span>
-      <span class="text-ink-2 font-semibold">create-ruxum-app</span>
-      <span class="text-ink-4 text-[0.6875rem]">v0.1.0</span>
+  <!-- CRT grid background -->
+  <div class="absolute inset-0 crt-grid opacity-[0.35] pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Ambient orange glow — bottom center -->
+  <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[480px] h-32 bg-orange/[0.04] blur-[80px] rounded-full pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Large faint watermark -->
+  <div class="absolute bottom-6 right-6 font-mono font-semibold text-[5rem] leading-none text-ink/[0.018] select-none pointer-events-none tracking-[-0.04em]" aria-hidden="true">
+    RUXUM
+  </div>
+
+  <div class="relative max-w-[1280px] mx-auto">
+
+    <!-- Three-column body -->
+    <div class="grid grid-cols-3 gap-12 pb-12 border-b border-border">
+
+      <!-- Col 1: Brand -->
+      <div class="flex flex-col gap-4">
+        <!-- Logo mark -->
+        <div class="flex items-center gap-2 font-mono">
+          <span class="w-[0.4375rem] h-[0.4375rem] rounded-full bg-green shrink-0 animate-indicator-pulse
+                       [box-shadow:0_0_10px_rgba(0,255,65,0.9),0_0_3px_rgba(0,255,65,0.6)]"></span>
+          <span class="text-[0.9375rem] font-semibold text-ink tracking-[-0.01em]">create-ruxum-app</span>
+          <span class="text-[0.625rem] text-ink-4 font-normal">v0.1.0</span>
+        </div>
+
+        <!-- Tagline -->
+        <p class="font-mono text-[0.75rem] text-ink-3 leading-[1.6] max-w-[240px]">
+          Scaffold a production-ready<br />
+          <span class="text-orange">Rust/Axum</span> + <span class="text-green-dim">Next.js</span> app<br />
+          in a single terminal command.
+        </p>
+
+        <!-- Status indicator row -->
+        <div class="flex items-center gap-2 mt-1">
+          <span class="font-mono text-[0.625rem] text-ink-4 uppercase tracking-[0.08em]">status</span>
+          <span class="w-12 h-px bg-border-2"></span>
+          <span class="font-mono text-[0.625rem] text-green tracking-[0.04em]">stable</span>
+        </div>
+      </div>
+
+      <!-- Col 2: Docs navigation -->
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-orange text-[0.5625rem]" aria-hidden="true">◆</span>
+          <span class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-ink-4">Documentation</span>
+        </div>
+        <nav class="flex flex-col gap-1" aria-label="Documentation links">
+          <a href="/introduction"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            Introduction
+          </a>
+          <a href="/installation"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            Installation
+          </a>
+          <a href="/scaffold/rust"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            Rust Axum API
+          </a>
+          <a href="/scaffold/nextjs"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            Next.js App
+          </a>
+          <a href="/scaffold/fullstack"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            Full-stack
+          </a>
+        </nav>
+      </div>
+
+      <!-- Col 3: Project links + credits -->
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-green text-[0.5625rem]" aria-hidden="true">—</span>
+          <span class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-ink-4">Project</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <a href="https://github.com/AndresFritscheOgando/ruxum"
+             target="_blank" rel="noopener noreferrer"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-orange transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            GitHub
+            <span class="text-[0.625rem] opacity-50 group-hover:opacity-100 transition-opacity">↗</span>
+          </a>
+          <a href="https://www.npmjs.com/package/create-ruxum-app"
+             target="_blank" rel="noopener noreferrer"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-orange transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-orange transition-colors duration-150 text-[0.625rem]">›</span>
+            npm
+            <span class="text-[0.625rem] opacity-50 group-hover:opacity-100 transition-opacity">↗</span>
+          </a>
+          <a href="https://create.t3.gg"
+             target="_blank" rel="noopener noreferrer"
+             class="group flex items-center gap-2 font-mono text-[0.8125rem] text-ink-3 no-underline
+                    hover:text-ink-2 transition-colors duration-150 w-fit">
+            <span class="text-ink-4 group-hover:text-ink-3 transition-colors duration-150 text-[0.625rem]">›</span>
+            Inspired by create-t3-app
+            <span class="text-[0.625rem] opacity-50 group-hover:opacity-100 transition-opacity">↗</span>
+          </a>
+        </div>
+
+        <!-- Built with -->
+        <div class="flex flex-col gap-1 pt-2 border-t border-border">
+          <span class="font-mono text-[0.625rem] uppercase tracking-[0.08em] text-ink-4">Built with</span>
+          <div class="flex items-center gap-3 flex-wrap">
+            <a href="https://astro.build" target="_blank" rel="noopener noreferrer"
+               class="font-mono text-[0.75rem] text-ink-4 no-underline hover:text-ink-3 transition-colors duration-150">
+              Astro
+            </a>
+            <span class="text-border-2 text-[0.5rem]">◆</span>
+            <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer"
+               class="font-mono text-[0.75rem] text-ink-4 no-underline hover:text-ink-3 transition-colors duration-150">
+              Tailwind
+            </a>
+            <span class="text-border-2 text-[0.5rem]">◆</span>
+            <span class="font-mono text-[0.75rem] text-ink-4">React</span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Nav links -->
-    <nav class="flex items-center gap-0.5 flex-wrap justify-center" aria-label="Footer navigation">
-      <a href="/introduction"
-         class="px-2.5 py-1 font-mono text-[0.75rem] text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-        docs
-      </a>
-      <a href="/installation"
-         class="px-2.5 py-1 font-mono text-[0.75rem] text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-        install
-      </a>
-      <a href="/scaffold/fullstack"
-         class="px-2.5 py-1 font-mono text-[0.75rem] text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-        full-stack
-      </a>
-      <a href="https://github.com/AndresFritscheOgando/ruxum"
-         target="_blank" rel="noopener noreferrer"
-         class="px-2.5 py-1 font-mono text-[0.75rem] text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-        github ↗
-      </a>
-      <a href="https://www.npmjs.com/package/create-ruxum-app"
-         target="_blank" rel="noopener noreferrer"
-         class="px-2.5 py-1 font-mono text-[0.75rem] text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-        npm ↗
-      </a>
-    </nav>
-
-    <!-- Divider -->
-    <div class="w-16 h-px bg-border-2" aria-hidden="true"></div>
-
-    <!-- Credit + license -->
-    <div class="flex flex-col items-center gap-1.5">
-      <p class="text-[0.8125rem] text-ink-4">
-        Inspired by
-        <a href="https://create.t3.gg" target="_blank" rel="noopener noreferrer"
-           class="text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-          create-t3-app
-        </a>.
-        Built with
-        <a href="https://astro.build" target="_blank" rel="noopener noreferrer"
-           class="text-ink-3 no-underline hover:text-ink-2 transition-colors duration-150">
-          Astro
-        </a>.
-      </p>
-      <p class="font-mono text-[0.6875rem] text-ink-4">MIT License</p>
+    <!-- Bottom status bar -->
+    <div class="flex items-center justify-between py-3.5">
+      <div class="flex items-center gap-3 font-mono text-[0.625rem] text-ink-4">
+        <span class="text-orange/60">◆</span>
+        <span>create-ruxum-app</span>
+        <span class="text-border-3">·</span>
+        <span>v0.1.0</span>
+        <span class="text-border-3">·</span>
+        <span>MIT License</span>
+      </div>
+      <div class="font-mono text-[0.625rem] text-ink-4 tracking-[0.04em]">
+        © 2025
+      </div>
     </div>
 
   </div>
 </footer>
+
+<style>
+  @media (max-width: 900px) {
+    footer .grid-cols-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    footer .grid-cols-3 { grid-template-columns: 1fr; gap: 2.5rem; }
+    footer { padding-left: 1rem; padding-right: 1rem; }
+  }
+</style>

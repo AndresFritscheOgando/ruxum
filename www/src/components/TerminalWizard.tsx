@@ -29,16 +29,30 @@ const STEPS: Step[] = [
 
 const RESET_DELAY = 4500;
 
+// Static — hoisted outside component so it is never recreated on re-render
+const WindowChrome = () => (
+  <div className="flex items-center gap-1.5 px-5 py-3.5 border-b border-border">
+    <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+    <span className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+    <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
+    <span className="ml-3 text-[0.6875rem] text-white/25 tracking-[0.04em]">
+      create-ruxum-app
+    </span>
+  </div>
+);
+
 export default function TerminalWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [displayedSteps, setDisplayedSteps] = useState<Step[]>([]);
 
   useEffect(() => {
     if (currentStep < STEPS.length) {
+      // Cache lookup — STEPS[currentStep] used twice (for append and for delay)
+      const step = STEPS[currentStep];
       const timer = setTimeout(() => {
-        setDisplayedSteps((prev) => [...prev, STEPS[currentStep]]);
+        setDisplayedSteps((prev) => [...prev, step]);
         setCurrentStep((prev) => prev + 1);
-      }, STEPS[currentStep].delay);
+      }, step.delay);
       return () => clearTimeout(timer);
     } else {
       const reset = setTimeout(() => {
@@ -51,15 +65,7 @@ export default function TerminalWizard() {
 
   return (
     <div className="relative overflow-hidden bg-[#0d0d0d] border border-border-2 font-mono text-[0.8125rem]">
-      {/* Window chrome */}
-      <div className="flex items-center gap-1.5 px-5 py-3.5 border-b border-border">
-        <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
-        <span className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
-        <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
-        <span className="ml-3 text-[0.6875rem] text-white/25 tracking-[0.04em]">
-          create-ruxum-app
-        </span>
-      </div>
+      <WindowChrome />
 
       {/* Steps */}
       <div className="px-5 py-5 min-h-[260px]">
@@ -94,13 +100,14 @@ export default function TerminalWizard() {
           ))}
         </AnimatePresence>
 
-        {currentStep < STEPS.length && (
+        {/* Ternary (not &&) — guards against accidental falsy number render */}
+        {currentStep < STEPS.length ? (
           <motion.span
             animate={{ opacity: [0, 1, 0] }}
             transition={{ repeat: Infinity, duration: 0.85 }}
             className="inline-block w-2 h-4 bg-ink align-middle ml-0.5"
           />
-        )}
+        ) : null}
       </div>
 
       {/* CRT vignette */}

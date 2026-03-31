@@ -3,19 +3,19 @@ const scaffoldTypes = [
   {
     label: "RUST API",
     description: "A production-ready Axum web server with async handlers, typed errors, and structured logging.",
-    items: ["◆ axum", "◆ tokio", "◆ sqlx / seaorm", "◆ jwt (optional)"],
+    items: ["axum", "tokio", "sqlx / seaorm", "jwt (optional)"],
     featured: false,
   },
   {
     label: "NEXT.JS APP",
     description: "A full Next.js 15 application with App Router, TypeScript, and optional Tailwind CSS.",
-    items: ["◆ next.js 15", "◆ typescript", "◆ tailwind (optional)", "◆ app router"],
+    items: ["next.js 15", "typescript", "tailwind (optional)", "app router"],
     featured: false,
   },
   {
     label: "FULL-STACK",
     description: "Both together — a Rust/Axum API and a Next.js frontend, wired up and ready to ship.",
-    items: ["◆ axum + next.js", "◆ sqlx / seaorm", "◆ jwt auth", "◆ typescript"],
+    items: ["axum + next.js", "sqlx / seaorm", "jwt auth", "typescript"],
     featured: true,
   },
 ];
@@ -32,10 +32,11 @@ const technologies = [
 ];
 ---
 
-<section class="py-20 px-6 border-b border-border">
+<section class="below-fold py-24 px-6 border-b border-border">
   <div class="max-w-[1280px] mx-auto">
 
     <!-- Section header -->
+    <div class="h-px bg-border-2 mb-8 w-full"></div>
     <div class="flex items-center gap-2.5 mb-3">
       <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
       <h2 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
@@ -48,24 +49,27 @@ const technologies = [
     </p>
 
     <!-- Scaffold type cards — mosaic grid (gap: 1px trick) -->
-    <div class="grid grid-cols-3 gap-px bg-border border border-border mb-16">
+    <div class="grid grid-cols-3 gap-px bg-border-2 border border-border-2 mb-16">
       {scaffoldTypes.map((type) => (
         <div class={`relative flex flex-col gap-3.5 p-7 transition-all duration-200
           ${type.featured
-            ? "bg-surface-2 border-t-2 border-t-orange hover:bg-surface-3"
-            : "bg-surface hover:bg-surface-2 hover:[box-shadow:inset_2px_0_0_var(--color-orange)]"
+            ? "bg-surface-2 border-t-2 border-t-orange hover:bg-surface-3 [box-shadow:0_0_0_1px_rgba(244,67,54,0.12),inset_0_1px_0_rgba(244,67,54,0.15)]"
+            : "bg-surface hover:bg-surface-2 hover:[box-shadow:inset_2px_0_0_var(--color-orange),0_0_0_1px_rgba(244,67,54,0.08),0_4px_24px_rgba(0,0,0,0.5)]"
           }`}>
 
           {type.featured && (
-            <div class="absolute top-0 right-0 px-2.5 py-1
-                        font-mono text-[0.5625rem] font-semibold text-orange
-                        uppercase tracking-[0.08em]
-                        border-l border-b border-orange/30 bg-canvas">
-              ★ recommended
-            </div>
+            <>
+              <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(244,67,54,0.04)_0%,transparent_60%)] pointer-events-none"></div>
+              <div class="absolute top-0 right-0 px-2.5 py-1
+                          font-mono text-[0.5625rem] font-semibold text-white
+                          uppercase tracking-[0.08em]
+                          bg-orange">
+                ★ recommended
+              </div>
+            </>
           )}
 
-          <div class="font-mono text-[0.875rem] font-semibold text-ink tracking-[0.02em]">
+          <div class="font-mono text-[0.9375rem] font-semibold text-ink tracking-[0.02em]">
             {type.label}
           </div>
 
@@ -73,9 +77,12 @@ const technologies = [
             {type.description}
           </p>
 
-          <ul class="flex flex-col gap-1.5 pt-2.5 border-t border-border list-none mt-auto">
+          <ul class="group flex flex-col gap-2 pt-2.5 border-t border-border list-none mt-auto">
             {type.items.map((item) => (
-              <li class="font-mono text-[0.75rem] text-ink-2">{item}</li>
+              <li class="flex items-center gap-1.5 font-mono text-[0.75rem] text-ink-3 hover:text-ink-2 transition-colors duration-150">
+                <span class="text-orange text-[0.5rem] shrink-0" aria-hidden="true">◆</span>
+                {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -84,23 +91,27 @@ const technologies = [
 
     <!-- Tech grid header -->
     <div class="flex items-center gap-2.5 mb-5">
-      <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
+      <span class="text-green text-[0.75rem] leading-none" aria-hidden="true">—</span>
       <h3 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
         TECHNOLOGIES INCLUDED
       </h3>
     </div>
 
     <!-- Tech cards — mosaic grid -->
-    <div class="grid grid-cols-4 gap-px bg-border border border-border">
+    <div class="grid grid-cols-4 gap-px bg-border-2 border border-border-2">
       {technologies.map((tech) => (
-        <div class="flex flex-col gap-2 p-5 bg-surface hover:bg-surface-2
-                    hover:[box-shadow:inset_2px_0_0_var(--color-orange)]
+        <div class="group flex flex-col gap-2 p-5 bg-surface
+                    border-t border-transparent
+                    group-hover:border-t-orange/20
+                    hover:bg-surface-3
+                    hover:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.05)]
                     transition-all duration-200">
-          <div class="flex items-center gap-[0.4375rem] font-mono text-[0.8125rem] font-semibold text-ink">
-            <span class="text-orange text-[0.625rem] shrink-0" aria-hidden="true">◆</span>
+          <div class="flex items-center gap-[0.4375rem] font-mono text-[0.8125rem] font-semibold text-ink group-hover:text-white transition-colors duration-200">
+            <span class="text-orange text-[0.625rem] shrink-0 group-hover:text-orange transition-colors duration-200" aria-hidden="true">◆</span>
             {tech.name}
+            <span class="text-orange text-[0.625rem] opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-auto" aria-hidden="true">→</span>
           </div>
-          <p class="text-[0.8125rem] leading-[1.5] text-ink-3">{tech.tagline}</p>
+          <p class="text-[0.8125rem] leading-[1.5] text-ink-3 group-hover:text-ink-2 transition-colors duration-200">{tech.tagline}</p>
         </div>
       ))}
     </div>

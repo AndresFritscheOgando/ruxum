@@ -43,6 +43,24 @@
   50%       { opacity: 0.55; }
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scanline-drift {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
 /* ── Base reset ───────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; }
@@ -60,6 +78,17 @@ body  {
 ::-webkit-scrollbar-thumb { background: #2a2a2a; }
 ::-webkit-scrollbar-thumb:hover { background: #3d3d3d; }
 
+/* ── Scroll-reveal ────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
 /* ── CRT effects (can't be expressed as Tailwind classes) */
 .crt-grid {
   background-image:
@@ -75,6 +104,45 @@ body  {
   background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
 }
 
+/* ── Scanline drift overlay ───────────────────────────── */
+.crt-scanline-drift {
+  position: relative;
+  overflow: hidden;
+}
+.crt-scanline-drift::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 65, 0.06), transparent);
+  animation: scanline-drift 8s linear infinite;
+  pointer-events: none;
+}
+
+/* ── Noise / film grain overlay ──────────────────────── */
+.noise-overlay {
+  position: relative;
+}
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Below-fold rendering optimization ───────────────── */
+/* Skips layout/paint for off-screen sections; browser
+   reserves intrinsic-size space to prevent scroll jumps  */
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
 /* ── Fluid headline (clamp can't be a Tailwind class) ── */
 .headline-fluid {
   font-size: clamp(2.25rem, 4.5vw, 3.75rem);
@@ -82,11 +150,37 @@ body  {
 
 /* ── Hero ambient glow ────────────────────────────────── */
 .hero-ambient {
-  width: 520px;
-  height: 520px;
+  width: 640px;
+  height: 640px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 67, 54, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(244, 67, 54, 0.09) 0%, rgba(244, 67, 54, 0.02) 55%, transparent 70%);
   pointer-events: none;
+}
+
+/* ── Section transition glow ─────────────────────────── */
+.section-glow {
+  position: relative;
+}
+.section-glow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 480px;
+  height: 120px;
+  background: radial-gradient(ellipse at center bottom, rgba(244, 67, 54, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Card hover glow ─────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.2s ease;
+}
+.card-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(244, 67, 54, 0.15),
+    0 8px 32px rgba(244, 67, 54, 0.08);
 }
 
 /* ── CRT grid with bottom fade ───────────────────────── */

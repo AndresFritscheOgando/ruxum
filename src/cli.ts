@@ -84,6 +84,9 @@ export async function runWizard(): Promise<ScaffoldConfig> {
         { value: "sqlx-sqlite", label: "SQLx — SQLite" },
         { value: "seaorm-postgres", label: "SeaORM — PostgreSQL" },
         { value: "seaorm-mysql", label: "SeaORM — MySQL" },
+        { value: "diesel-postgres", label: "Diesel — PostgreSQL" },
+        { value: "diesel-mysql", label: "Diesel — MySQL" },
+        { value: "diesel-sqlite", label: "Diesel — SQLite" },
       ],
     })) as DbChoice;
 

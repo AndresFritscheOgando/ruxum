@@ -19,8 +19,11 @@ export function buildMainRs(config: ScaffoldConfig): string {
     pub db: db::Db,`
     : `    pub config: config::AppConfig,`;
 
+  const isDiesel = db && db.startsWith("diesel");
   const dbConnect = hasDb
-    ? `    let db = db::connect(cfg.database_url.as_deref().unwrap()).await?;\n`
+    ? isDiesel
+      ? `    db::run_migrations(cfg.database_url.as_deref().unwrap()).await?;\n    let db = db::connect(cfg.database_url.as_deref().unwrap()).await?;\n`
+      : `    let db = db::connect(cfg.database_url.as_deref().unwrap()).await?;\n`
     : "";
 
   const stateInit = hasDb

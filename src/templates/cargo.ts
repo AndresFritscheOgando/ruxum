@@ -50,6 +50,27 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 `;
+  } else if (db === "diesel-postgres") {
+    toml += `diesel = { version = "2", features = ["postgres"] }
+diesel-async = { version = "0.5", features = ["postgres", "bb8"] }
+diesel_migrations = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+`;
+  } else if (db === "diesel-mysql") {
+    toml += `diesel = { version = "2", features = ["mysql"] }
+diesel-async = { version = "0.5", features = ["mysql", "bb8"] }
+diesel_migrations = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+`;
+  } else if (db === "diesel-sqlite") {
+    toml += `diesel = { version = "2", features = ["sqlite"] }
+diesel-async = { version = "0.5", features = ["sync-connection-wrapper", "bb8"] }
+diesel_migrations = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+`;
   }
 
   if (auth) {

@@ -10,11 +10,11 @@ PORT=3000
 `;
 
   if (hasDb) {
-    if (db === "sqlx-postgres" || db === "seaorm-postgres") {
+    if (db === "sqlx-postgres" || db === "seaorm-postgres" || db === "diesel-postgres") {
       env += `DATABASE_URL=postgres://user:password@localhost/mydb\n`;
-    } else if (db === "sqlx-mysql" || db === "seaorm-mysql") {
+    } else if (db === "sqlx-mysql" || db === "seaorm-mysql" || db === "diesel-mysql") {
       env += `DATABASE_URL=mysql://user:password@localhost/mydb\n`;
-    } else if (db === "sqlx-sqlite") {
+    } else if (db === "sqlx-sqlite" || db === "diesel-sqlite") {
       env += `DATABASE_URL=sqlite://./dev.db\n`;
     }
   }

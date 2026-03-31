@@ -1,12 +1,15 @@
 ---
 ---
 
-<nav class="sticky top-0 z-50 bg-canvas/[0.92] border-b border-border backdrop-blur-xl">
-  <div class="max-w-[1280px] mx-auto px-6 h-[3.25rem] flex items-center justify-between">
+<nav class="sticky top-0 z-50 backdrop-blur-xl [background:linear-gradient(to_bottom,rgba(10,10,10,0.97),rgba(10,10,10,0.88))]">
+  <!-- Bottom border: gradient line from transparent → orange/20 → green/10 → transparent -->
+  <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-orange/20 via-60% to-transparent [--tw-gradient-stops:transparent_0%,rgba(244,67,54,0.2)_35%,rgba(0,255,65,0.1)_65%,transparent_100%]" aria-hidden="true"></div>
+
+  <div class="max-w-[1280px] mx-auto px-6 h-[3.5rem] flex items-center justify-between">
 
     <a href="/" class="flex items-center gap-2 no-underline font-mono text-[0.8125rem] font-semibold text-ink group">
       <span class="w-[0.4375rem] h-[0.4375rem] rounded-full bg-green shrink-0 animate-indicator-pulse
-                   [box-shadow:0_0_8px_rgba(0,255,65,0.9)]"></span>
+                   [box-shadow:0_0_12px_rgba(0,255,65,1),0_0_4px_rgba(0,255,65,0.6)]"></span>
       <span class="tracking-[-0.01em] group-hover:text-white group-hover:[text-shadow:0_0_16px_rgba(255,255,255,0.2)] transition-all duration-150">
         create-ruxum-app
       </span>
@@ -24,6 +27,13 @@
                 hover:text-ink hover:underline hover:underline-offset-4 transition-all duration-150">
         install
       </a>
+      <a href="https://www.npmjs.com/package/create-ruxum-app"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="px-3 py-1.5 font-mono text-[0.75rem] text-ink-3 no-underline
+                hover:text-ink hover:underline hover:underline-offset-4 transition-all duration-150">
+        npm
+      </a>
 
       <!-- separator -->
       <span class="w-px h-3.5 bg-border-2 mx-1.5" aria-hidden="true"></span>
@@ -35,6 +45,7 @@
                 font-mono text-[0.75rem] text-ink-2 no-underline
                 border border-border-2 rounded-none
                 hover:border-orange/40 hover:text-ink hover:bg-orange/[0.04]
+                hover:[text-shadow:0_0_20px_rgba(244,67,54,0.4)]
                 transition-all duration-150">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
@@ -49,7 +60,8 @@
 <style>
   @media (max-width: 480px) {
     nav a[href="/introduction"],
-    nav a[href="/installation"] { display: none; }
+    nav a[href="/installation"],
+    nav a[href="https://www.npmjs.com/package/create-ruxum-app"] { display: none; }
     nav span[aria-hidden="true"] { display: none; }
   }
 </style>

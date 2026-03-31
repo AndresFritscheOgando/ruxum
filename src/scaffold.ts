@@ -13,6 +13,7 @@ import { buildErrorsRs } from "./templates/errors";
 import { buildHealthRs, buildHandlersMod } from "./templates/health";
 import { buildDbSqlxRs } from "./templates/db_sqlx";
 import { buildDbSeaOrmRs } from "./templates/db_seaorm";
+import { buildDbDieselRs } from "./templates/db_diesel";
 import { buildAuthMod, buildAuthMiddlewareRs } from "./templates/auth";
 import { buildEnvExample as buildRustEnv } from "./templates/env";
 import { buildModelsMod } from "./templates/models";
@@ -68,9 +69,24 @@ async function scaffoldRust(dir: string, cfg: RustConfig, full: ScaffoldConfig) 
   if (hasDb) {
     const dbContent = cfg.db.startsWith("sqlx")
       ? buildDbSqlxRs(full)
+      : cfg.db.startsWith("diesel")
+      ? buildDbDieselRs(full)
       : buildDbSeaOrmRs(full);
     await writeProjectFile(dir, "src/db.rs", dbContent);
     await writeProjectFile(dir, "src/models/mod.rs", buildModelsMod(full));
+
+    if (cfg.db.startsWith("diesel")) {
+      await writeProjectFile(
+        dir,
+        "migrations/00000000000000_initial/up.sql",
+        "-- Initial migration\n-- Add your schema here\n"
+      );
+      await writeProjectFile(
+        dir,
+        "migrations/00000000000000_initial/down.sql",
+        "-- Rollback initial migration\n"
+      );
+    }
   }
 
   if (cfg.auth) {
