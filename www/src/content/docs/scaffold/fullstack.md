@@ -1,0 +1,73 @@
+---
+title: Full-stack
+description: Scaffold a Rust/Axum backend and Next.js frontend together.
+---
+
+The full-stack scaffold generates both a Rust/Axum API and a Next.js frontend in a single project, with a shared structure that makes running them together easy.
+
+## Project structure
+
+```
+my-app/
+├── api/                  # Rust Axum backend
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── config.rs
+│   │   ├── errors.rs
+│   │   └── routes/
+│   ├── Cargo.toml
+│   └── .env.example
+├── www/                  # Next.js frontend
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   ├── package.json
+│   └── tsconfig.json
+└── README.md
+```
+
+## Running both services
+
+```sh
+# Terminal 1 — API (port 3000)
+cd api && cp .env.example .env && cargo run
+
+# Terminal 2 — Frontend (port 3001)
+cd www && npm install && npm run dev
+```
+
+## Connecting Next.js to the Rust API
+
+The `www/lib/api.ts` client is pre-configured to point at your Axum server:
+
+```ts
+// www/lib/api.ts
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...init,
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+```
+
+Use it in any Server Component or route handler:
+
+```ts
+const posts = await apiFetch<Post[]>("/posts");
+```
+
+## Environment
+
+Set `NEXT_PUBLIC_API_URL` in `www/.env.local` to point at your deployed API URL in production:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+```
+
+## CORS
+
+The Axum backend's `CorsLayer` is pre-configured to allow requests from `localhost:3001`. Update `api/src/config.rs` to add your production frontend domain before deploying.

@@ -1,0 +1,51 @@
+---
+title: Introduction
+description: What create-ruxum-app is and why it exists.
+---
+
+`create-ruxum-app` is an interactive CLI that scaffolds production-ready applications with a **Rust/Axum backend**, a **Next.js frontend**, or both — in seconds.
+
+## The problem it solves
+
+Starting a modern Rust web server involves a lot of decisions and boilerplate before you write a single line of business logic:
+
+- Choose a framework (Axum, Actix, Warp…)
+- Set up async runtime (Tokio)
+- Configure structured logging (`tracing`)
+- Handle environment variables (`dotenvy`, `config`)
+- Pick a database layer (SQLx or SeaORM)
+- Configure CORS and request tracing middleware
+- Optionally wire up JWT authentication
+
+`create-ruxum-app` makes all of these decisions for you — and lets you opt in or out interactively. The result is a project that already follows production conventions on day one.
+
+## What you can scaffold
+
+| Scaffold type | What you get |
+|---|---|
+| **Rust Axum API** | Async Rust web server with your chosen database and optional JWT auth |
+| **Next.js App** | Next.js 15 with App Router, TypeScript, and optional Tailwind CSS |
+| **Full-stack** | Both wired up together |
+
+## Tech stack
+
+### Backend (Rust)
+
+| Library | Role |
+|---|---|
+| [Axum](https://github.com/tokio-rs/axum) | Web framework |
+| [Tokio](https://tokio.rs) | Async runtime |
+| [SQLx](https://github.com/launchbadge/sqlx) | Async, compile-time SQL |
+| [SeaORM](https://www.sea-ql.org/SeaORM/) | Async dynamic ORM (alternative) |
+| `tracing` + `tracing-subscriber` | Structured logging |
+| `dotenvy` + `config` | Environment configuration |
+| `thiserror` + `anyhow` | Typed error handling |
+| `tower-http` | CORS, request tracing middleware |
+
+### Frontend (Next.js)
+
+| Library | Role |
+|---|---|
+| [Next.js 15](https://nextjs.org) | React framework with App Router |
+| TypeScript | Type-safe frontend |
+| Tailwind CSS | Utility-first styling (optional) |

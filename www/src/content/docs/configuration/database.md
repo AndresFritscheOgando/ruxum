@@ -1,0 +1,81 @@
+---
+title: Database
+description: Database options, ORM choices, and how to configure your connection.
+---
+
+## Supported databases
+
+| Database | Use case |
+|---|---|
+| **PostgreSQL** | Production — recommended for most applications |
+| **MySQL** | Production — high-traffic workloads, existing MySQL infrastructure |
+| **SQLite** | Development / embedded — zero setup, single file |
+
+## ORM choices
+
+### SQLx
+
+SQLx provides **compile-time checked SQL queries**. Your queries are verified against the actual database schema at build time — if a column doesn't exist, the build fails.
+
+```rust
+let user = sqlx::query_as!(
+    User,
+    "SELECT id, email, created_at FROM users WHERE id = $1",
+    user_id
+)
+.fetch_one(&pool)
+.await?;
+```
+
+**Pros:** Maximum type safety, minimal overhead, raw SQL control.
+**Cons:** Requires a live database or saved metadata (`sqlx prepare`) to compile.
+
+### SeaORM
+
+SeaORM is a fully async **dynamic ORM** built on top of SQLx. It provides an ActiveRecord-style API and a migration system.
+
+```rust
+let user = User::find_by_id(user_id)
+    .one(&db)
+    .await?
+    .ok_or(AppError::NotFound)?;
+```
+
+**Pros:** Migrations, entity generation, no SQL required.
+**Cons:** More abstraction, slightly higher compile times.
+
+## Configuring the connection
+
+Set `DATABASE_URL` in your `.env`:
+
+```env
+# PostgreSQL
+DATABASE_URL=postgres://user:password@localhost:5432/mydb
+
+# MySQL
+DATABASE_URL=mysql://user:password@localhost:3306/mydb
+
+# SQLite
+DATABASE_URL=sqlite:./dev.db
+```
+
+## Running migrations
+
+With **SQLx**:
+
+```sh
+# Install the CLI
+cargo install sqlx-cli
+
+# Create and run migrations
+sqlx migrate add create_users_table
+sqlx migrate run
+```
+
+With **SeaORM**:
+
+```sh
+cargo install sea-orm-cli
+sea-orm-cli migrate generate create_users_table
+sea-orm-cli migrate up
+```

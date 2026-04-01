@@ -1,0 +1,78 @@
+---
+title: Authentication
+description: How JWT authentication works in the generated scaffold.
+---
+
+When you opt into JWT auth, the scaffold generates a complete stateless authentication system using [jsonwebtoken](https://github.com/Keats/jsonwebtoken).
+
+## What gets generated
+
+```
+src/
+├── auth/
+│   ├── mod.rs            # JWT encode/decode, Claims struct
+│   ├── middleware.rs     # Axum extractor — verifies token on protected routes
+│   └── handlers.rs       # POST /auth/register, POST /auth/login
+└── models/
+    └── user.rs           # User model with hashed password storage
+```
+
+## Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/auth/register` | Create a new user account |
+| `POST` | `/auth/login` | Return a signed JWT |
+
+### Register
+
+```sh
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "hunter2"}'
+```
+
+### Login
+
+```sh
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "hunter2"}'
+
+# {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
+```
+
+## Protecting a route
+
+Use the `AuthUser` extractor on any handler:
+
+```rust
+use crate::auth::middleware::AuthUser;
+
+pub async fn my_protected_handler(
+    AuthUser(claims): AuthUser,
+    State(state): State<AppState>,
+) -> Result<Json<MyResponse>, AppError> {
+    // claims.sub is the authenticated user's ID
+    Ok(Json(MyResponse { user_id: claims.sub }))
+}
+```
+
+## Environment variables
+
+```env
+JWT_SECRET=a-long-random-string-change-in-production
+JWT_EXPIRY_HOURS=24
+```
+
+:::caution
+Generate a strong `JWT_SECRET` for production. A minimum of 32 random bytes is recommended:
+
+```sh
+openssl rand -hex 32
+```
+:::
+
+## Password hashing
+
+Passwords are hashed using [argon2](https://github.com/RustCrypto/password-hashes) with secure defaults. Plain-text passwords are never stored.
