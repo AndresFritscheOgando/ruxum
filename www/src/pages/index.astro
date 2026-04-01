@@ -1,51 +1,20 @@
 ---
-import "../styles/landing.css";
-import Nav from "../components/landing/Nav.astro";
-import Hero from "../components/landing/Hero.astro";
-import TechStack from "../components/landing/TechStack.astro";
-import Features from "../components/landing/Features.astro";
-import Footer from "../components/landing/Footer.astro";
-import { getImage } from "astro:assets";
-import houstonSrc from "../assets/houston.webp";
-import jbMono400 from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url";
-import jbMono600 from "@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2?url";
-
-const houstonImg = await getImage({ src: houstonSrc, width: 72, height: 72, format: "webp" });
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/landing/Hero.astro';
+import TechStack from '../components/landing/TechStack.astro';
+import Features from '../components/landing/Features.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0a0a0a" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="me" href="https://github.com/AndresFritscheOgando/ruxum" />
-    <link rel="preload" as="image" href={houstonImg.src} type="image/webp" fetchpriority="high" />
-    <link rel="preload" as="font" href={jbMono600} type="font/woff2" crossorigin="anonymous" />
-    <link rel="preload" as="font" href={jbMono400} type="font/woff2" crossorigin="anonymous" />
-    <title>create-ruxum-app — Scaffold Rust + Next.js at terminal velocity</title>
-    <meta
-      name="description"
-      content="The fastest way to scaffold a production-ready full-stack application with a Rust/Axum API and Next.js frontend. One command, your choices, done."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://create-ruxum-app.vercel.app/" />
-    <meta property="og:title" content="create-ruxum-app" />
-    <meta
-      property="og:description"
-      content="Scaffold production-ready Rust + Next.js apps at terminal velocity."
-    />
-    <meta property="og:image" content="https://create-ruxum-app.vercel.app/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://create-ruxum-app.vercel.app/og-image.png" />
+<BaseLayout
+  title="create-ruxum-app — Scaffold Rust + Next.js at terminal velocity"
+  description="The fastest way to scaffold a production-ready full-stack application with a Rust/Axum API and Next.js frontend. One command, your choices, done."
+>
+  <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "create-ruxum-app",
-      "description": "The fastest way to scaffold a production-ready full-stack application with a Rust/Axum API and Next.js frontend. One command, your choices, done.",
+      "description": "The fastest way to scaffold a production-ready full-stack application with a Rust/Axum API and Next.js frontend.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "macOS, Linux, Windows",
       "url": "https://create-ruxum-app.vercel.app",
@@ -62,14 +31,10 @@ const houstonImg = await getImage({ src: houstonSrc, width: 72, height: 72, form
         "https://www.npmjs.com/package/create-ruxum-app"
       ]
     })} />
-  </head>
-  <body>
-    <Nav />
-    <main>
-      <Hero />
-      <TechStack />
-      <Features />
-    </main>
-    <Footer />
-  </body>
-</html>
+  </Fragment>
+  <main>
+    <Hero />
+    <TechStack />
+    <Features />
+  </main>
+</BaseLayout>

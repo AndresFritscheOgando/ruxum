@@ -1,0 +1,112 @@
+---
+title: Folder Structure
+description: The generated project layout for each scaffold type.
+---
+
+Every scaffold type generates a consistent, opinionated structure. Here is what each one looks like on disk.
+
+## Rust Axum API
+
+```
+my-api/
+├── src/
+│   ├── main.rs           # Server setup, port binding, middleware stack
+│   ├── config.rs         # Environment config via dotenvy + config crate
+│   ├── errors.rs         # AppError enum (thiserror) — maps to HTTP status codes
+│   ├── routes/
+│   │   ├── mod.rs        # Router assembly, middleware attachment
+│   │   └── health.rs     # GET /health — liveness probe
+│   └── db/
+│       └── mod.rs        # Database pool initialization and connection testing
+├── Cargo.toml            # Dependencies, features, workspace config
+├── .env.example          # All environment variables the app needs, with descriptions
+└── README.md
+```
+
+With **JWT auth** enabled:
+
+```
+src/
+├── auth/
+│   ├── mod.rs            # JWT Claims struct, encode/decode helpers
+│   ├── middleware.rs     # AuthUser extractor — validates Bearer token on each request
+│   └── handlers.rs       # POST /auth/register, POST /auth/login
+└── models/
+    └── user.rs           # User model, password hashing (argon2), DB queries
+```
+
+## Next.js App
+
+```
+my-app/
+├── app/
+│   ├── layout.tsx        # Root layout — fonts, global providers
+│   ├── page.tsx          # Home page (/) — Server Component by default
+│   └── globals.css       # Global styles, CSS variables
+├── components/           # Shared React components
+├── lib/                  # Utility functions, API client helpers
+├── public/               # Static assets (images, fonts, robots.txt)
+├── package.json
+├── tsconfig.json         # strict: true, @ path alias configured
+└── next.config.ts
+```
+
+With **Tailwind CSS** enabled:
+
+```
+├── tailwind.config.ts    # Theme extension, plugin config
+└── postcss.config.mjs
+```
+
+## Full-stack
+
+The full-stack scaffold places both services under a single root directory:
+
+```
+my-app/
+├── api/                  # Rust Axum backend (identical to Rust-only scaffold)
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── config.rs
+│   │   ├── errors.rs
+│   │   └── routes/
+│   ├── Cargo.toml
+│   └── .env.example
+├── www/                  # Next.js frontend
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   │   └── api.ts        # Pre-configured fetch client pointing at the Axum API
+│   ├── package.json
+│   └── tsconfig.json
+└── README.md             # Instructions for running both services
+```
+
+### The `www/lib/api.ts` client
+
+The full-stack scaffold includes a typed fetch utility pre-wired to your Axum API:
+
+```ts
+// www/lib/api.ts
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...init,
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+```
+
+Set `NEXT_PUBLIC_API_URL` in `www/.env.local` to point at your production API.
+
+## What is not included
+
+Ruxum deliberately omits things you should choose yourself:
+
+- **Frontend state management** — use Zustand, Jotai, or React context as appropriate
+- **CSS component libraries** — use shadcn/ui, Radix, or plain CSS
+- **Testing setup** — use Vitest, Jest, or Playwright depending on your needs
+- **Deployment configuration** — use the deployment guide for Vercel, Fly.io, or Docker

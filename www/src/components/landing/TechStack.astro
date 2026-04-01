@@ -9,7 +9,7 @@ const scaffoldTypes = [
   {
     label: "NEXT.JS APP",
     description: "A full Next.js 15 application with App Router, TypeScript, and optional Tailwind CSS.",
-    items: ["next.js 15", "typescript", "tailwind (optional)", "app router"],
+    items: ["next.js 15", "typescript", "tailwind (optional)"],
     featured: false,
   },
   {
@@ -32,55 +32,39 @@ const technologies = [
 ];
 ---
 
-<section class="below-fold py-24 px-8 border-b border-border">
-  <div class="max-w-[1200px] mx-auto">
+<section class="ts-section">
+  <div class="ts-inner">
 
-    <!-- Section header -->
-    <div class="h-px bg-border-2 mb-8 w-full"></div>
-    <div class="flex items-center gap-2.5 mb-3">
-      <span class="text-orange text-[0.75rem] leading-none" aria-hidden="true">◆</span>
-      <h2 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
-        EVERYTHING YOU NEED
-      </h2>
+    <!-- Divider & Header -->
+    <div class="ts-divider"></div>
+    
+    <div class="ts-header">
+      <div class="ts-badge">
+        <span class="ts-badge__icon" aria-hidden="true">◆</span>
+        <span class="ts-badge__text">The Stack</span>
+      </div>
+      <h2 class="ts-headline text-gradient-forge">Everything you need.</h2>
+      <p class="ts-description">
+        Pick the pieces. Skip the rest. Every choice is made in the interactive
+        wizard — no config files, no guesswork.
+      </p>
     </div>
-    <p class="text-[1.0625rem] leading-[1.6] text-ink-2 max-w-[560px] mb-14">
-      Pick the pieces. Skip the rest. Every choice is made in the interactive
-      wizard — no config files, no guesswork.
-    </p>
 
-    <!-- Scaffold type cards — mosaic grid (gap: 1px trick) -->
-    <div class="grid grid-cols-3 gap-px bg-border-2 border border-border-2 mb-20 rounded-xl overflow-hidden">
+    <!-- Scaffold Grid -->
+    <div class="scaffold-grid">
       {scaffoldTypes.map((type) => (
-        <div class={`relative flex flex-col gap-5 p-8 transition-all duration-200
-          ${type.featured
-            ? "bg-surface-2 border-t-2 border-t-orange hover:bg-surface-3 [box-shadow:0_0_0_1px_rgba(244,67,54,0.12),inset_0_1px_0_rgba(244,67,54,0.15)]"
-            : "bg-surface hover:bg-surface-2 hover:[box-shadow:inset_2px_0_0_var(--color-orange),0_0_0_1px_rgba(244,67,54,0.08),0_4px_24px_rgba(0,0,0,0.5)]"
-          }`}>
-
+        <div class={`machined-card scaffold-card ${type.featured ? 'scaffold-card--featured' : ''}`}>
           {type.featured && (
-            <>
-              <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(244,67,54,0.04)_0%,transparent_60%)] pointer-events-none"></div>
-              <div class="absolute top-2 right-2 px-2.5 py-1
-                          font-mono text-[0.5625rem] font-semibold text-white
-                          uppercase tracking-[0.08em] rounded-md
-                          bg-orange">
-                ★ recommended
-              </div>
-            </>
+            <div class="scaffold-card__featured-badge">★ recommended</div>
           )}
-
-          <div class="font-mono text-[0.9375rem] font-semibold text-ink tracking-[0.02em]">
-            {type.label}
-          </div>
-
-          <p class="text-[0.875rem] leading-[1.55] text-ink-3 flex-1">
-            {type.description}
-          </p>
-
-          <ul class="group flex flex-col gap-2.5 pt-3.5 border-t border-border list-none mt-auto">
+          
+          <div class="scaffold-card__label font-mono">{type.label}</div>
+          <p class="scaffold-card__description">{type.description}</p>
+          
+          <ul class="scaffold-card__list">
             {type.items.map((item) => (
-              <li class="flex items-center gap-1.5 font-mono text-[0.75rem] text-ink-3 hover:text-ink-2 transition-colors duration-150">
-                <span class="text-orange text-[0.5rem] shrink-0" aria-hidden="true">◆</span>
+              <li class="scaffold-card__list-item font-mono">
+                <span class="ts-orange-dot">◆</span>
                 {item}
               </li>
             ))}
@@ -89,29 +73,23 @@ const technologies = [
       ))}
     </div>
 
-    <!-- Tech grid header -->
-    <div class="flex items-center gap-2.5 mb-6">
-      <span class="text-green text-[0.75rem] leading-none" aria-hidden="true">—</span>
-      <h3 class="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-ink-3">
-        TECHNOLOGIES INCLUDED
-      </h3>
+    <!-- Tech Divider -->
+    <div class="ts-tech-header">
+      <div class="ts-badge">
+        <span class="ts-green-dash" aria-hidden="true">—</span>
+        <h3 class="ts-badge__text">TECHNOLOGIES INCLUDED</h3>
+      </div>
     </div>
 
-    <!-- Tech cards — mosaic grid -->
-    <div class="grid grid-cols-4 gap-px bg-border-2 border border-border-2 rounded-xl overflow-hidden">
+    <!-- Tech Grid -->
+    <div class="tech-grid">
       {technologies.map((tech) => (
-        <div class="group flex flex-col gap-3.5 p-6 bg-surface
-                    border-t border-transparent
-                    group-hover:border-t-orange/20
-                    hover:bg-surface-3
-                    hover:[box-shadow:inset_0_0_0_1px_rgba(255,255,255,0.05)]
-                    transition-all duration-200">
-          <div class="flex items-center gap-[0.4375rem] font-mono text-[0.8125rem] font-semibold text-ink group-hover:text-white transition-colors duration-200">
-            <span class="text-orange text-[0.625rem] shrink-0 group-hover:text-orange transition-colors duration-200" aria-hidden="true">◆</span>
+        <div class="machined-card tech-card">
+          <div class="tech-card__title font-mono">
+            <span class="ts-orange-dot">◆</span>
             {tech.name}
-            <span class="text-orange text-[0.625rem] opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-auto" aria-hidden="true">→</span>
           </div>
-          <p class="text-[0.8125rem] leading-[1.5] text-ink-3 group-hover:text-ink-2 transition-colors duration-200">{tech.tagline}</p>
+          <p class="tech-card__tagline">{tech.tagline}</p>
         </div>
       ))}
     </div>
@@ -120,14 +98,226 @@ const technologies = [
 </section>
 
 <style>
+  .ts-section {
+    padding: 10rem 3rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-canvas);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle ambient glow for the section background */
+  .ts-section::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1000px;
+    height: 600px;
+    background: radial-gradient(ellipse at center, var(--color-orange-embers) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ts-inner {
+    position: relative;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .ts-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-border-2), transparent);
+    margin-bottom: 6rem;
+  }
+
+  .ts-header {
+    margin-bottom: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ts-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ts-badge__icon {
+    color: var(--color-orange);
+    font-size: 0.75rem;
+    filter: drop-shadow(0 0 8px var(--color-orange-molten));
+  }
+
+  .ts-green-dash {
+    color: var(--color-green);
+    font-size: 0.75rem;
+  }
+
+  .ts-badge__text {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-4);
+  }
+
+  .ts-headline {
+    font-family: var(--font-sans);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+  }
+
+  .ts-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--color-ink-2);
+    max-width: 540px;
+  }
+
+  /* Scaffold Cards */
+  .scaffold-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    margin-bottom: 6rem;
+  }
+
+  .scaffold-card {
+    border-radius: 12px;
+    padding: 3rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .scaffold-card--featured {
+    border-color: var(--color-orange-dim);
+    box-shadow: 
+      inset 0 1px 0 0 var(--color-glass-hi),
+      0 0 40px -10px var(--color-orange-embers);
+  }
+
+  .scaffold-card__featured-badge {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-orange);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.25rem 0.875rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    box-shadow: 0 4px 12px var(--color-orange-embers);
+  }
+
+  .scaffold-card__label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.02em;
+  }
+
+  .scaffold-card__description {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-ink-3);
+    margin-bottom: 2.5rem;
+    flex-grow: 1;
+  }
+
+  .scaffold-card__list {
+    list-style: none;
+    padding: 1.5rem 0 0;
+    margin: 0;
+    border-top: 1px solid var(--color-border-2);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .scaffold-card__list-item {
+    font-size: 0.75rem;
+    color: var(--color-ink-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    transition: color 0.2s ease;
+  }
+  .scaffold-card:hover .scaffold-card__list-item { color: var(--color-ink-2); }
+
+  .ts-orange-dot {
+    color: var(--color-orange-dim);
+    font-size: 0.5rem;
+  }
+
+  /* Tech Grid */
+  .ts-tech-header {
+    margin-bottom: 3rem;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .tech-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tech-card__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 0.625rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tech-card__tagline {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-ink-3);
+  }
+
   @media (max-width: 960px) {
-    .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .tech-grid { grid-template-columns: repeat(2, 1fr); }
   }
+
   @media (max-width: 720px) {
-    .grid-cols-3 { grid-template-columns: 1fr; }
+    .scaffold-grid { grid-template-columns: 1fr; }
+    .ts-section { padding: 6rem 1.5rem; }
   }
+
   @media (max-width: 480px) {
-    section { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 3.5rem; padding-bottom: 3.5rem; }
-    .grid-cols-4 { grid-template-columns: 1fr; }
+    .tech-grid { grid-template-columns: 1fr; }
   }
 </style>

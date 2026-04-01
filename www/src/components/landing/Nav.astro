@@ -1,47 +1,39 @@
 ---
+interface Props {
+  docsMode?: boolean;
+}
+const { docsMode = false } = Astro.props;
 ---
 
-<nav class="sticky top-0 z-50 backdrop-blur-xl [background:linear-gradient(to_bottom,rgba(16,13,11,0.97),rgba(16,13,11,0.88))]">
+<nav class="ts-nav sticky top-0 z-50">
+  <div class="ts-nav-inner">
 
-  <div class="max-w-[1200px] mx-auto px-8 h-16 flex items-center justify-between">
+    <!-- Left: mobile sidebar toggle (docs only) + logo -->
+    <div class="flex items-center gap-4">
+      {docsMode && (
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      )}
+      <a href="/" class="ts-nav-logo no-underline group">
+        <div class="ts-nav-logo-mark">
+          <span class="w-1.5 h-1.5 rounded-full bg-orange group-hover:bg-orange-hi transition-colors duration-200"></span>
+        </div>
+        <span class="ts-nav-logo-text font-sans">Ruxum</span>
+      </a>
+    </div>
 
-    <!-- Logo: wordmark only, sans-serif, no pulsing dot -->
-    <a href="/" class="no-underline flex items-center gap-1.5 group">
-      <span class="font-sans text-xl font-bold text-white tracking-[-0.03em]
-                   group-hover:text-orange transition-colors duration-150">
-        Ruxum
-      </span>
-      <span class="font-mono text-[0.625rem] text-ink-4 tabular-nums">v0.1.0</span>
-    </a>
-
-    <!-- Right cluster: nav links + GitHub CTA -->
-    <div class="flex items-center gap-6">
-      <a href="/introduction"
-         class="font-sans text-[0.875rem] text-ink-3 no-underline
-                hover:text-ink transition-colors duration-150">
-        Docs
-      </a>
-      <a href="/installation"
-         class="font-sans text-[0.875rem] text-ink-3 no-underline
-                hover:text-ink transition-colors duration-150">
-        Install
-      </a>
-      <a href="https://www.npmjs.com/package/create-ruxum-app"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="font-sans text-[0.875rem] text-ink-3 no-underline
-                hover:text-ink transition-colors duration-150">
-        npm
-      </a>
+    <!-- Right: nav links -->
+    <div class="ts-nav-links font-sans">
+      <a href="/docs/introduction" class="ts-nav-link">Docs</a>
+      <a href="/docs/why-ruxum" class="ts-nav-link">Why Ruxum?</a>
       <a href="https://github.com/AndresFritscheOgando/ruxum"
          target="_blank"
          rel="noopener noreferrer"
-         class="flex items-center gap-2 px-4 py-2 rounded-md no-underline
-                font-sans text-[0.875rem] font-medium text-ink
-                bg-surface-2 border border-border-2
-                hover:border-orange/35 hover:bg-surface-3
-                transition-all duration-150">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+         class="ts-nav-github group">
+        <svg class="ts-nav-github-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
         </svg>
         GitHub
@@ -50,14 +42,133 @@
 
   </div>
 
-  <!-- Single flat bottom border -->
-  <div class="h-px bg-border" aria-hidden="true"></div>
+  <!-- Industrial Border Gradient -->
+  <div class="ts-nav-border" aria-hidden="true"></div>
 </nav>
 
 <style>
-  @media (max-width: 480px) {
-    nav a[href="/introduction"],
-    nav a[href="/installation"],
-    nav a[href="https://www.npmjs.com/package/create-ruxum-app"] { display: none; }
+  .ts-nav {
+    background: rgba(15, 14, 13, 0.85);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    transition: background 0.3s ease;
+  }
+
+  .ts-nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ts-nav-border {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(232, 99, 42, 0.4) 20%,
+      rgba(232, 99, 42, 0.4) 80%,
+      transparent
+    );
+    opacity: 0.6;
+  }
+
+  .ts-nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .ts-nav-logo-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-2);
+    box-shadow: inset 0 1px 0 0 var(--color-glass-hi);
+    transition: all 0.2s ease;
+  }
+
+  .ts-nav-logo:hover .ts-nav-logo-mark {
+    border-color: var(--color-orange-dim);
+    background: var(--color-surface-2);
+    box-shadow: 0 0 12px var(--color-orange-embers);
+  }
+
+  .ts-nav-logo-text {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.03em;
+    transition: color 0.2s ease;
+  }
+  
+  .ts-nav-logo:hover .ts-nav-logo-text {
+    color: #fff;
+  }
+
+  .ts-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ts-nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink-3);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .ts-nav-link:hover {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .ts-nav-github {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: none;
+    padding: 0.5rem 1.125rem;
+    margin-left: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-2);
+    background: var(--color-surface);
+    box-shadow: inset 0 1px 0 0 var(--color-glass-hi);
+    transition: all 0.2s ease;
+  }
+
+  .ts-nav-github:hover {
+    border-color: var(--color-orange-dim);
+    background: var(--color-surface-2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .ts-nav-github-icon {
+    opacity: 0.8;
+    transition: transform 0.2s ease;
+  }
+
+  .ts-nav-github:hover .ts-nav-github-icon {
+    transform: scale(1.1);
+    color: var(--color-orange);
+  }
+
+  @media (max-width: 640px) {
+    .ts-nav-inner { padding: 0 1.25rem; }
+    .ts-nav-link { display: none; }
   }
 </style>

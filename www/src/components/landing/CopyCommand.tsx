@@ -6,12 +6,10 @@ export default function CopyCommand() {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Stable reference — won't cause child re-renders if passed as prop
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(COMMAND);
       setCopied(true);
-      // Clear any in-flight reset before scheduling a new one
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), 2200);
     } catch {
@@ -19,7 +17,6 @@ export default function CopyCommand() {
     }
   }, []);
 
-  // Clear pending reset on unmount to prevent setState on unmounted component
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -29,32 +26,57 @@ export default function CopyCommand() {
   return (
     <button
       onClick={handleCopy}
-      aria-label={copied ? "Copied!" : "Copy installation command"}
-      className={`flex items-center gap-2 px-4 py-3 w-full max-w-[420px]
-                 bg-surface border border-border-2 rounded-none cursor-pointer
-                 font-mono text-sm text-left
-                 hover:border-border-3 hover:bg-surface-2
-                 hover:[box-shadow:0_0_0_1px_rgba(255,255,255,0.08),inset_0_0_16px_rgba(0,255,65,0.02)]
-                 transition-all duration-200
-                 ${copied ? "border-l-2 border-l-orange" : ""}`}
+      aria-label={copied ? "¡Copiado!" : "Copiar comando de instalación"}
+      className={`${copied ? "live-wire glow-pulse" : ""}`}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "0.75rem",
+        padding: "0.75rem 1rem",
+        width: "100%",
+        maxWidth: "400px",
+        background: "var(--color-surface)",
+        border: `1px solid ${copied ? "var(--color-orange)" : "var(--color-border-2)"}`,
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontFamily: "var(--font-mono)",
+        fontSize: "0.875rem",
+        textAlign: "left",
+        transition: "border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease",
+        boxShadow: copied
+          ? "0 0 20px -5px var(--color-orange-molten)"
+          : "none",
+        position: "relative",
+      }}
+      onMouseEnter={e => {
+        if (!copied) {
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border-3)";
+          (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface-2)";
+        }
+      }}
+      onMouseLeave={e => {
+        if (!copied) {
+          (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border-2)";
+          (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface)";
+        }
+      }}
     >
+      <span style={{ color: "var(--color-ink-4)", flexShrink: 0, userSelect: "none" }}>$</span>
+      <span style={{ color: "var(--color-ink-2)", flex: 1 }}>{COMMAND}</span>
       <span
-        className={`shrink-0 [text-shadow:0_0_8px_rgba(0,255,65,0.6)]
-                    ${copied ? "text-orange" : "text-green"}`}
+        style={{
+          flexShrink: 0,
+          padding: "0.2rem 0.5rem",
+          border: `1px solid ${copied ? "var(--color-orange)" : "var(--color-border-2)"}`,
+          borderRadius: "4px",
+          fontSize: "0.625rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          color: copied ? "var(--color-orange-hi)" : "var(--color-ink-3)",
+          transition: "all 0.15s ease",
+        }}
       >
-        $
-      </span>
-      <span className="text-ink-2 flex-1">{COMMAND}</span>
-      <span
-        className={`shrink-0 px-2 py-1 border rounded-none
-                    text-[0.6875rem] uppercase tracking-[0.05em] font-mono
-                    transition-all duration-200
-                    ${copied
-                      ? "border-green text-green [box-shadow:0_0_8px_rgba(0,255,65,0.2)]"
-                      : "border-border-2 text-ink-3"
-                    }`}
-      >
-        {copied ? "✓ copied" : "copy"}
+        {copied ? "✓ copiado" : "copiar"}
       </span>
     </button>
   );

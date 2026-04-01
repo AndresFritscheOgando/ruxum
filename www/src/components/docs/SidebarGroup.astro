@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  isOpen: boolean;
+}
+const { title, isOpen } = Astro.props;
+---
+
+<details class="sidebar-group" open={isOpen || undefined}>
+  <summary class="sidebar-group__trigger">
+    <span class="sidebar-group__arrow" aria-hidden="true">▸</span>
+    <span class="sidebar-group__title">{title}</span>
+  </summary>
+  <div class="sidebar-group__content">
+    <div>
+      <slot />
+    </div>
+  </div>
+</details>

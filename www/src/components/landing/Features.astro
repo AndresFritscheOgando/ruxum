@@ -23,60 +23,43 @@ const features = [
 ];
 ---
 
-<section class="below-fold py-28 px-8 border-b border-border">
-  <div class="max-w-[1200px] mx-auto">
+<section class="features-section">
+  <div class="features-inner">
 
-    <!-- Section header: type-driven hierarchy, no decorative symbols -->
-    <p class="font-sans text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-ink-4 mb-4">
-      Why Ruxum
-    </p>
-    <h2 class="font-sans text-[1.375rem] font-semibold text-ink tracking-[-0.02em] leading-[1.3] max-w-[480px] mb-4">
-      Skip the scaffolding tax.
-    </h2>
-    <p class="text-[1rem] leading-[1.7] text-ink-2 max-w-[520px] mb-20">
-      Setting up a modern Rust web server is tedious. Ruxum handles the
-      framework wiring, logging, database config, and auth so you can
-      focus on your product.
-    </p>
+    <!-- Section header -->
+    <div class="features-header">
+      <div class="ts-badge mb-4">
+        <span class="ts-badge__icon" aria-hidden="true">◆</span>
+        <span class="ts-badge__text">Core Principles</span>
+      </div>
+      <h2 class="features-headline text-gradient-forge">Skip the scaffolding tax.</h2>
+      <p class="features-description">
+        Setting up a modern Rust web server is tedious. Ruxum handles the
+        framework wiring, logging, database config, and auth so you can
+        focus on your product.
+      </p>
+    </div>
 
-    <!-- Feature cards — 2×2 grid, warm cards, clean dividers -->
-    <div class="features-grid grid grid-cols-2 border border-border rounded-xl overflow-hidden">
-      {features.map((f, i) => (
-        <div class="group card-warm relative flex flex-col gap-7 p-10 bg-[#1c1410]
-                    hover:bg-surface-3
-                    transition-all duration-200">
-
-          <!-- Left terracotta accent bar on hover -->
-          <div class="absolute left-0 top-8 bottom-8 w-[2px] bg-orange/0
-                      group-hover:bg-orange/30 transition-all duration-200 rounded-full"
-               aria-hidden="true"></div>
-
-          <!-- Number: structural, very dim -->
-          <span class="font-mono text-[0.6875rem] text-ink-4 tabular-nums">
-            {f.marker}
-          </span>
-
-          <!-- Feature title: sans-serif for reading clarity -->
-          <h3 class="font-sans text-[1.0625rem] font-semibold text-ink tracking-[-0.02em]
-                     leading-[1.3] group-hover:text-white transition-colors duration-200">
-            {f.title}
-          </h3>
-
-          <p class="text-[0.9375rem] leading-[1.7] text-ink-2">
-            {f.body}
-          </p>
+    <!-- Feature cards grid -->
+    <div class="features-grid">
+      {features.map((f) => (
+        <div class="machined-card feature-card group">
+          <div class="feature-card-accent" aria-hidden="true"></div>
+          <span class="feature-card-marker font-mono">{f.marker}</span>
+          <h3 class="feature-card-title">{f.title}</h3>
+          <p class="feature-card-body">{f.body}</p>
         </div>
       ))}
     </div>
 
     <!-- Bottom CTA row -->
-    <div class="mt-10 flex items-center gap-3">
-      <a href="/introduction" class="font-sans text-[0.875rem] text-orange hover:text-orange/80 no-underline transition-colors duration-150">
-        Read the docs →
+    <div class="features-footer">
+      <a href="/docs/introduction" class="features-link-primary">
+        Read the docs <span class="ml-1 opacity-50">→</span>
       </a>
-      <span class="w-px h-3.5 bg-border-2"></span>
-      <a href="/scaffold/fullstack" class="font-sans text-[0.875rem] text-ink-3 hover:text-ink-2 no-underline transition-colors duration-150">
-        Full-stack guide →
+      <span class="features-footer-divider"></span>
+      <a href="/docs/scaffold/fullstack" class="features-link-secondary">
+        Full-stack guide <span class="ml-1 opacity-50">→</span>
       </a>
     </div>
 
@@ -84,21 +67,182 @@ const features = [
 </section>
 
 <style>
-  /* Dividers between cards without gap-px hack */
-  .features-grid > *:nth-child(odd) {
-    border-right: 1px solid var(--color-border);
+  .features-section {
+    position: relative;
+    padding: 10rem 3rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-canvas);
+    overflow: hidden;
   }
-  .features-grid > *:nth-child(n+3) {
-    border-top: 1px solid var(--color-border);
+
+  .features-section::after {
+    content: "";
+    position: absolute;
+    bottom: -100px;
+    left: 50%;
+    width: 800px;
+    height: 200px;
+    background: radial-gradient(ellipse at center, var(--color-orange-embers) 0%, transparent 70%);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 0;
   }
+
+  .features-inner {
+    position: relative;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .features-header {
+    margin-bottom: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ts-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .ts-badge__icon {
+    color: var(--color-orange);
+    font-size: 0.75rem;
+    filter: drop-shadow(0 0 8px var(--color-orange-molten));
+  }
+
+  .ts-badge__text {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-4);
+  }
+
+  .features-headline {
+    font-family: var(--font-sans);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+  }
+
+  .features-description {
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-ink-2);
+    max-width: 560px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+  }
+
+  .feature-card {
+    padding: 3.5rem 2.5rem;
+    border-radius: 12px;
+    gap: 1.5rem;
+  }
+
+  .feature-card-accent {
+    position: absolute;
+    left: 0;
+    top: 2.5rem;
+    bottom: 2.5rem;
+    width: 2px;
+    background: transparent;
+    border-radius: 99px;
+    transition: background 0.3s ease;
+  }
+  .feature-card:hover .feature-card-accent {
+    background: var(--color-orange-molten);
+    box-shadow: 0 0 12px var(--color-orange-molten);
+  }
+
+  .feature-card-marker {
+    font-size: 0.6875rem;
+    color: var(--color-ink-4);
+    letter-spacing: 0.1em;
+    tabular-nums: true;
+  }
+
+  .feature-card-title {
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+  }
+  .feature-card:hover .feature-card-title {
+    color: #fff;
+    text-shadow: 0 0 15px rgba(255,255,255,0.1);
+  }
+
+  .feature-card-body {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-ink-3);
+    transition: color 0.3s ease;
+  }
+  .feature-card:hover .feature-card-body {
+    color: var(--color-ink-2);
+  }
+
+  .features-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .features-link-primary {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-orange);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .features-link-primary:hover { 
+    color: var(--color-orange-hi);
+    transform: translateX(2px);
+  }
+
+  .features-footer-divider {
+    width: 1px;
+    height: 1rem;
+    background: var(--color-border-2);
+  }
+
+  .features-link-secondary {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink-3);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .features-link-secondary:hover { color: var(--color-ink-2); }
 
   @media (max-width: 720px) {
     .features-grid { grid-template-columns: 1fr; }
-    .features-grid > *:nth-child(odd) { border-right: none; }
-    .features-grid > *:nth-child(n+2) { border-top: 1px solid var(--color-border); }
-    section { padding-top: 4rem; padding-bottom: 4rem; }
-  }
-  @media (max-width: 480px) {
-    section { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .features-section { padding: 6rem 1.5rem; }
+    .features-headline { font-size: 2rem; }
   }
 </style>

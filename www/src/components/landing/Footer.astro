@@ -1,148 +1,113 @@
 ---
+import pkg from "../../../../package.json";
 ---
 
-<footer class="relative px-8 pt-20 pb-0 overflow-hidden border-t border-border">
-
-  <!-- Gradient line at very top -->
-  <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-orange/40 to-transparent" aria-hidden="true"></div>
-
-  <!-- Ambient glow — bumped to 0.08 so it reads as a warm anchor -->
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-20 bg-orange/[0.08] blur-[64px] rounded-full pointer-events-none" aria-hidden="true"></div>
+<footer class="ts-footer">
+  <!-- The Forge Glow - matching Hero and other sections -->
+  <div class="footer-glow-container" aria-hidden="true">
+    <div class="footer-glow-main"></div>
+  </div>
 
   <!-- CRT grid background -->
-  <div class="absolute inset-0 crt-grid opacity-[0.3] pointer-events-none" aria-hidden="true"></div>
+  <div class="absolute inset-0 crt-grid opacity-[0.2] pointer-events-none" aria-hidden="true"></div>
 
-  <!-- Large faint watermark — raised to 0.035 so it reads as intentional -->
-  <div class="absolute bottom-8 right-0 overflow-hidden font-mono font-semibold text-[6rem] leading-none text-ink/[0.035] select-none pointer-events-none tracking-[-0.04em]" aria-hidden="true">
+  <!-- Large faint watermark - refined for Industrial Forge -->
+  <div class="footer-watermark" aria-hidden="true">
     RUXUM
   </div>
 
-  <div class="relative max-w-[1200px] mx-auto">
+  <div class="footer-inner">
 
-    <!-- Body grid: wide brand col + two nav cols -->
-    <div class="footer-grid grid gap-16 pb-14 border-b border-border">
+    <!-- Body grid -->
+    <div class="footer-grid">
 
       <!-- Col 1: Brand -->
-      <div class="flex flex-col gap-6">
+      <div class="footer-brand">
 
         <!-- Logo mark -->
-        <div class="flex items-center gap-2.5 font-mono">
-          <span class="w-[0.4375rem] h-[0.4375rem] rounded-full bg-green shrink-0 animate-indicator-pulse
-                       [box-shadow:0_0_10px_rgba(0,255,65,0.9),0_0_3px_rgba(0,255,65,0.6)]"></span>
-          <span class="text-[0.9375rem] font-semibold text-ink tracking-[-0.01em]">create-ruxum-app</span>
-          <span class="font-mono text-[0.5625rem] text-ink-4 border border-border-2 rounded px-1.5 py-0.5 leading-none">v0.1.0</span>
+        <div class="footer-logo">
+          <span class="w-1.5 h-1.5 rounded-full bg-green animate-indicator-pulse"></span>
+          <span class="footer-logo-text font-mono">create-ruxum-app</span>
+          <span class="terminal-badge lowercase">v{pkg.version}</span>
         </div>
 
         <!-- Tagline -->
-        <p class="font-mono text-[0.8125rem] text-ink-3 leading-[1.7] max-w-[300px]">
+        <p class="footer-tagline font-mono">
           Scaffold a production&#8209;ready <span class="text-orange">Rust&thinsp;/&thinsp;Axum</span> +
-          <span class="text-green-dim">Next.js</span> app in a single terminal command.
+          <span class="text-green">Next.js</span> app in a single terminal command.
         </p>
 
-        <!-- Handcrafted note -->
-        <p class="font-mono text-[0.6875rem] text-ink-4 leading-none">
-          made with care &mdash; open source &amp; free forever
-        </p>
-
-        <!-- Install command block -->
-        <div class="flex items-center gap-3 bg-ink/[0.05] border border-border-2 rounded-md px-4 py-2.5 w-fit
-                    hover:border-orange/30 hover:bg-orange/[0.03] transition-colors duration-200 group cursor-default">
+        <!-- Install command block - Refined with machined style -->
+        <div class="footer-install-block group">
           <span class="font-mono text-[0.625rem] text-ink-4 select-none">$</span>
-          <code class="font-mono text-[0.8125rem] text-orange tracking-[-0.01em] group-hover:[text-shadow:0_0_20px_rgba(244,67,54,0.4)] transition-all duration-200">npx create-ruxum-app</code>
+          <code class="footer-install-code font-mono">npx create-ruxum-app</code>
         </div>
 
         <!-- Status pills -->
-        <div class="flex items-center gap-4 font-mono text-[0.625rem]">
+        <div class="footer-status-row font-mono">
           <div class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-green/80 [box-shadow:0_0_6px_rgba(0,255,65,0.5)]"></span>
-            <span class="text-green/80 uppercase tracking-[0.06em]">stable</span>
+            <span class="w-1 h-1 rounded-full bg-green/80 shadow-[0_0_6px_var(--color-green)]"></span>
+            <span class="text-green/80 uppercase tracking-widest text-[0.5625rem]">stable build</span>
           </div>
-          <span class="w-px h-3 bg-border-2"></span>
-          <span class="text-ink-4 uppercase tracking-[0.08em]">MIT License</span>
-          <span class="w-px h-3 bg-border-2"></span>
-          <span class="text-ink-4 uppercase tracking-[0.08em]">open source</span>
+          <span class="footer-status-divider"></span>
+          <span class="uppercase tracking-widest text-[0.5625rem]">MIT License</span>
+          <span class="footer-status-divider"></span>
+          <span class="uppercase tracking-widest text-[0.5625rem]">Open Source</span>
         </div>
 
       </div>
 
       <!-- Col 2: Docs navigation -->
-      <div class="flex flex-col gap-5">
-        <div class="pb-2.5 border-b border-border">
-          <span class="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-orange/70">
-            <span class="text-orange/50" aria-hidden="true">◆</span>
-            &ensp;Documentation
+      <div class="footer-nav-col">
+        <div class="footer-nav-header">
+          <span class="footer-nav-label font-mono">
+            <span class="text-orange/60" aria-hidden="true">◆</span>
+            Documentation
           </span>
         </div>
-        <nav class="flex flex-col gap-2.5" aria-label="Documentation links">
-          <a href="/introduction"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            Introduction
+        <nav class="footer-nav-links" aria-label="Documentation links">
+          <a href="/docs/introduction" class="footer-nav-link font-mono">
+            <span class="footer-nav-bullet">▸</span> Introduction
           </a>
-          <a href="/installation"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            Installation
+          <a href="/docs/installation" class="footer-nav-link font-mono">
+            <span class="footer-nav-bullet">▸</span> Installation
           </a>
-          <a href="/scaffold/rust"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            Rust Axum API
+          <a href="/docs/scaffold/rust" class="footer-nav-link font-mono">
+            <span class="footer-nav-bullet">▸</span> Rust Axum API
           </a>
-          <a href="/scaffold/nextjs"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            Next.js App
+          <a href="/docs/scaffold/nextjs" class="footer-nav-link font-mono">
+            <span class="footer-nav-bullet">▸</span> Next.js App
           </a>
-          <a href="/scaffold/fullstack"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            Full&#8209;stack
+          <a href="/docs/scaffold/fullstack" class="footer-nav-link font-mono">
+            <span class="footer-nav-bullet">▸</span> Full&#8209;stack
           </a>
         </nav>
       </div>
 
       <!-- Col 3: Project links -->
-      <div class="flex flex-col gap-5">
-        <div class="pb-2.5 border-b border-border">
-          <span class="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-orange/70">
-            <span class="text-orange/50" aria-hidden="true">◆</span>
-            &ensp;Project
+      <div class="footer-nav-col">
+        <div class="footer-nav-header">
+          <span class="footer-nav-label font-mono">
+            <span class="text-orange/60" aria-hidden="true">◆</span>
+            Project
           </span>
         </div>
-        <div class="flex flex-col gap-2.5">
-          <a href="https://github.com/AndresFritscheOgando/ruxum"
-             target="_blank" rel="noopener noreferrer"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-orange transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            GitHub
-            <svg class="w-2.5 h-2.5 opacity-35 group-hover:opacity-75 -translate-y-px transition-opacity" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <div class="footer-nav-links">
+          <a href="https://github.com/AndresFritscheOgando/ruxum" target="_blank" rel="noopener noreferrer" class="footer-nav-link font-mono group">
+            <span class="footer-nav-bullet">▸</span> GitHub
+            <svg class="footer-link-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M1.5 8.5l7-7M3.5 1.5h6v6"/>
             </svg>
           </a>
-          <a href="https://www.npmjs.com/package/create-ruxum-app"
-             target="_blank" rel="noopener noreferrer"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-orange transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-orange group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            npm
-            <svg class="w-2.5 h-2.5 opacity-35 group-hover:opacity-75 -translate-y-px transition-opacity" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <a href="https://www.npmjs.com/package/create-ruxum-app" target="_blank" rel="noopener noreferrer" class="footer-nav-link font-mono group">
+            <span class="footer-nav-bullet">▸</span> npm
+            <svg class="footer-link-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M1.5 8.5l7-7M3.5 1.5h6v6"/>
             </svg>
           </a>
-          <a href="https://create.t3.gg"
-             target="_blank" rel="noopener noreferrer"
-             class="group flex items-center gap-2.5 font-mono text-[0.8125rem] text-ink-3 no-underline
-                    hover:text-ink-2 transition-colors duration-150 w-fit">
-            <span class="text-border-2 group-hover:text-ink-3 group-hover:translate-x-1 transition-all duration-150 text-[0.5rem]">▸</span>
-            <span>create&#8209;t3&#8209;app</span>
-            <svg class="w-2.5 h-2.5 opacity-35 group-hover:opacity-75 -translate-y-px transition-opacity" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <a href="https://create.t3.gg" target="_blank" rel="noopener noreferrer" class="footer-nav-link font-mono group">
+            <span class="footer-nav-bullet">▸</span> create&#8209;t3&#8209;app
+            <svg class="footer-link-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
               <path d="M1.5 8.5l7-7M3.5 1.5h6v6"/>
             </svg>
           </a>
@@ -152,56 +117,253 @@
     </div>
 
     <!-- Bottom status bar -->
-    <div class="flex items-center justify-between py-5">
-
-      <div class="flex items-center gap-3 font-mono text-[0.625rem] text-ink-4">
+    <div class="footer-bottom-bar">
+      <div class="footer-copyright font-mono">
         <span class="text-orange/40" aria-hidden="true">◆</span>
-        <span class="text-ink-3">© 2025 create-ruxum-app</span>
-        <span class="text-border-3" aria-hidden="true">·</span>
-        <span>MIT License</span>
+        <span>© 2026 create-ruxum-app</span>
+        <span class="footer-status-divider"></span>
+        <span>Crafted with ♥ for the Rust ecosystem</span>
       </div>
 
-      <div class="flex items-center gap-2 font-mono text-[0.625rem] text-ink-4">
-        <span>Built with</span>
-        <a href="https://astro.build" target="_blank" rel="noopener noreferrer"
-           class="text-ink-3 no-underline hover:text-ink transition-colors duration-150">Astro</a>
-        <span class="text-ink-4" aria-hidden="true">/</span>
-        <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer"
-           class="text-ink-3 no-underline hover:text-ink transition-colors duration-150">Tailwind</a>
-        <span class="text-ink-4" aria-hidden="true">/</span>
+      <div class="footer-tech-stack font-mono">
+        <span class="text-ink-4">Built with</span>
+        <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
+        <span class="text-ink-4">/</span>
+        <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer">Tailwind</a>
+        <span class="text-ink-4">/</span>
         <span>React</span>
-        <span class="w-px h-3 bg-border-2 mx-1" aria-hidden="true"></span>
-        <span class="text-ink-4">crafted with ♥</span>
       </div>
-
     </div>
 
   </div>
 </footer>
 
 <style>
-  footer .footer-grid {
-    grid-template-columns: 2fr 1fr 1fr;
+  .ts-footer {
+    position: relative;
+    padding: 8rem 1.5rem 4rem;
+    background: var(--color-canvas);
+    border-top: 1px solid var(--color-border);
+    overflow: hidden;
   }
-  @media (max-width: 900px) {
-    footer .footer-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    footer .footer-grid > *:first-child {
-      grid-column: span 2;
-    }
+
+  .footer-inner {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    z-index: 10;
   }
-  @media (max-width: 600px) {
-    footer .footer-grid {
+
+  .footer-glow-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100%;
+    height: 300px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .footer-glow-main {
+    position: absolute;
+    top: -150px;
+    left: 50%;
+    width: 800px;
+    height: 300px;
+    background: radial-gradient(ellipse at center, var(--color-orange-embers) 0%, transparent 70%);
+    transform: translateX(-50%);
+    animation: forge-glow 12s ease-in-out infinite;
+  }
+
+  .footer-watermark {
+    position: absolute;
+    bottom: -0.1em;
+    right: -0.1em;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12rem;
+    line-height: 1;
+    color: var(--color-ink);
+    opacity: 0.02;
+    letter-spacing: -0.05em;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    padding-bottom: 4rem;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-logo-text {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-tagline {
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+    line-height: 1.8;
+    max-width: 320px;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-install-block {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-2);
+    padding: 0.625rem 1rem;
+    border-radius: 6px;
+    width: fit-content;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 1px 0 0 var(--color-glass-hi);
+    transition: all 0.2s ease;
+  }
+
+  .footer-install-block:hover {
+    border-color: var(--color-orange-dim);
+    background: var(--color-surface-2);
+  }
+
+  .footer-install-code {
+    font-size: 0.8125rem;
+    color: var(--color-orange);
+    transition: text-shadow 0.2s ease;
+  }
+
+  .footer-install-block:hover .footer-install-code {
+    text-shadow: 0 0 12px var(--color-orange-molten);
+  }
+
+  .footer-status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-ink-4);
+  }
+
+  .footer-status-divider {
+    width: 1px;
+    height: 0.75rem;
+    background: var(--color-border-2);
+  }
+
+  .footer-nav-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  .footer-nav-label {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-ink-3);
+  }
+
+  .footer-nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-nav-link {
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    transition: all 0.15s ease;
+  }
+
+  .footer-nav-link:hover {
+    color: var(--color-ink);
+  }
+
+  .footer-nav-bullet {
+    font-size: 0.5rem;
+    color: var(--color-border-3);
+    transition: all 0.15s ease;
+  }
+
+  .footer-nav-link:hover .footer-nav-bullet {
+    color: var(--color-orange);
+    transform: translateX(2px);
+  }
+
+  .footer-link-icon {
+    width: 0.625rem;
+    height: 0.625rem;
+    opacity: 0.3;
+    transition: opacity 0.15s ease;
+  }
+
+  .footer-nav-link:hover .footer-link-icon {
+    opacity: 0.8;
+  }
+
+  .footer-bottom-bar {
+    padding-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.625rem;
+    color: var(--color-ink-4);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .footer-tech-stack {
+    font-size: 0.625rem;
+    color: var(--color-ink-3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .footer-tech-stack a {
+    color: var(--color-ink-2);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-tech-stack a:hover {
+    color: var(--color-ink);
+  }
+
+  @media (max-width: 800px) {
+    .footer-grid {
       grid-template-columns: 1fr;
-      gap: 2.5rem;
+      gap: 3rem;
     }
-    footer .footer-grid > *:first-child {
-      grid-column: span 1;
-    }
-    footer {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-    }
+    .footer-tagline { max-width: none; }
+  }
+
+  @media (max-width: 480px) {
+    .ts-footer { padding: 5rem 1.5rem 3rem; }
+    .footer-bottom-bar { flex-direction: column; align-items: flex-start; }
   }
 </style>
