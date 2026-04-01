@@ -26,7 +26,7 @@ export default function CopyCommand() {
   return (
     <button
       onClick={handleCopy}
-      aria-label={copied ? "¡Copiado!" : "Copiar comando de instalación"}
+      aria-label={copied ? "Copied!" : "Copy install command"}
       className={`${copied ? "live-wire glow-pulse" : ""}`}
       style={{
         display: "flex",
