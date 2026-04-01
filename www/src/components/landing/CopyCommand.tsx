@@ -76,7 +76,7 @@ export default function CopyCommand() {
           transition: "all 0.15s ease",
         }}
       >
-        {copied ? "✓ copiado" : "copiar"}
+        {copied ? "✓ Copied!" : "Copy"}
       </span>
     </button>
   );
