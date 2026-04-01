@@ -1,0 +1,44 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+const { headings } = Astro.props;
+const filtered = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{filtered.length > 0 && (
+  <nav class="docs-toc" aria-label="Table of contents">
+    <div class="docs-toc__inner">
+      <p class="docs-toc__label">On this page</p>
+      <ul>
+        {filtered.map((h) => (
+          <li class:list={{ 'docs-toc__h3': h.depth === 3 }}>
+            <a
+              href={`#${h.slug}`}
+              class="docs-toc__link"
+              data-toc-id={h.slug}
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  <script>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = entry.target.getAttribute('id');
+          const link = document.querySelector(`[data-toc-id="${id}"]`);
+          if (link) link.classList.toggle('docs-toc__link--active', entry.isIntersecting);
+        }
+      },
+      { rootMargin: '-20% 0% -70% 0%', threshold: 0 }
+    );
+    document.querySelectorAll('h2[id], h3[id]').forEach(el => observer.observe(el));
+  </script>
+)}

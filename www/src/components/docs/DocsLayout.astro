@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from './Sidebar.astro';
+import TableOfContents from './TableOfContents.astro';
+import DocsProse from './DocsProse.astro';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  headings: MarkdownHeading[];
+  currentSlug: string;
+}
+const { title, description, headings, currentSlug } = Astro.props;
+---
+
+<BaseLayout
+  title={`${title} — create-ruxum-app`}
+  description={description}
+  noFooter={true}
+  docsMode={true}
+>
+  <div class="docs-shell">
+    <Sidebar currentSlug={currentSlug} />
+    <main class="docs-main" id="main-content">
+      <DocsProse>
+        <slot />
+      </DocsProse>
+    </main>
+    <TableOfContents headings={headings} />
+  </div>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+</BaseLayout>
+
+<script>
+  const toggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('docs-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  function openSidebar() {
+    sidebar?.classList.add('is-open');
+    overlay?.classList.add('is-open');
+    toggle?.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.remove('is-open');
+    overlay?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = sidebar?.classList.contains('is-open');
+    isOpen ? closeSidebar() : openSidebar();
+  });
+
+  overlay?.addEventListener('click', closeSidebar);
+
+  // Close sidebar on navigation (when a link is clicked)
+  sidebar?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeSidebar);
+  });
+</script>

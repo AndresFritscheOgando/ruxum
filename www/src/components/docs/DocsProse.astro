@@ -1,0 +1,40 @@
+---
+import '../../styles/prose.css';
+---
+
+<div class="prose">
+  <slot />
+</div>
+
+<script>
+  // Inject copy buttons into all code blocks in the prose area
+  document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+    pre.parentNode?.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
+    const btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.setAttribute('aria-label', 'Copy code');
+    btn.textContent = 'copy';
+    wrapper.appendChild(btn);
+
+    btn.addEventListener('click', async () => {
+      const code = pre.querySelector('code')?.textContent ?? pre.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = '✓';
+        wrapper.classList.add('live-wire', 'glow-pulse');
+        
+        setTimeout(() => { 
+          btn.textContent = 'copiar'; 
+          wrapper.classList.remove('live-wire', 'glow-pulse');
+        }, 2000);
+      } catch {
+        btn.textContent = 'error';
+        setTimeout(() => { btn.textContent = 'copiar'; }, 2000);
+      }
+    });
+  });
+</script>

@@ -27,6 +27,7 @@ const STEPS: Step[] = [
   { type: "meta",     text: "→  cd my-app && cargo run",      delay: 400 },
 ];
 
+
 const RESET_DELAY = 4500;
 
 // Static — hoisted outside component so it is never recreated on re-render

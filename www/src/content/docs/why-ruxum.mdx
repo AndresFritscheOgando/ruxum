@@ -1,0 +1,55 @@
+---
+title: Why Ruxum?
+description: The reasoning behind create-ruxum-app and what it gets you.
+---
+
+Modern full-stack development has a setup tax. Every new project means the same decisions, the same boilerplate, the same configuration files. `create-ruxum-app` exists to eliminate that cost entirely.
+
+## Zero boilerplate
+
+When you run `npx create-ruxum-app@latest`, you get a complete, production-ready project structure — not a hello world. Typed errors, structured logging, environment config, CORS middleware, and database setup are all wired up on day zero.
+
+You open your editor and write business logic, not glue code.
+
+## Type-safe end-to-end
+
+Rust's compile-time guarantees on the backend. TypeScript on the frontend. Two type systems working together so runtime surprises stay rare.
+
+The scaffolded Rust API uses `thiserror` for typed error handling, `sqlx` for compile-time checked SQL queries, and Axum's extractor pattern to make invalid states unrepresentable at the type level.
+
+```rust
+// This won't compile if the `users` table doesn't have an `email` column
+let user = sqlx::query_as!(User, "SELECT id, email FROM users WHERE id = $1", id)
+    .fetch_one(&pool)
+    .await?;
+```
+
+## Your choices, instantly
+
+There is no one-size-fits-all stack. Ruxum presents an interactive wizard so you describe exactly what you need:
+
+- **Database**: PostgreSQL, MySQL, or SQLite
+- **ORM**: SQLx (compile-time SQL) or SeaORM (ActiveRecord-style)
+- **Auth**: JWT authentication layer — opt in or out
+- **Frontend extras**: Tailwind CSS — opt in or out
+
+You answer; the scaffolder builds the exact project you described. Nothing more, nothing less.
+
+## Deploy-ready from the start
+
+The production checklist is already checked:
+
+- `tracing` + `tracing-subscriber` for structured, JSON-ready logging
+- `dotenvy` + `config` for environment-aware configuration
+- `tower-http` middleware: CORS, request tracing, gzip/brotli compression
+- `.env.example` pre-filled with every variable the app needs
+
+You can deploy on day one without reading a guide about production Rust.
+
+## Why Rust + Next.js?
+
+Rust gives you performance and memory safety without a garbage collector. Axum is async-first, ergonomic, and built on top of Tokio — the same async runtime powering production systems at major companies.
+
+Next.js gives you the React ecosystem, server components, and a battle-tested deployment story on Vercel or any Node host.
+
+Together, they cover the full stack without compromise: a backend that can handle tens of thousands of concurrent connections and a frontend that ships fast, SEO-friendly pages.

@@ -1,76 +1,231 @@
 ---
-import { Image } from "astro:assets";
-import houston from "../../assets/houston.webp";
 import CopyCommand from "./CopyCommand";
 import TerminalWizard from "../TerminalWizard";
+import pkg from "../../../../package.json";
 ---
 
-<section class="relative overflow-hidden px-8 pt-36 pb-28 border-b border-border">
+<section class="hero-section">
+  <!-- The Forge Glow -->
+  <div class="hero-glow-container" aria-hidden="true">
+    <div class="hero-glow-main"></div>
+  </div>
 
-  <!-- Warm-tinted CRT grid with bottom fade -->
-  <div class="crt-grid-warm crt-grid--faded absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-  <!-- CRT scanlines -->
-  <div class="crt-scanlines absolute inset-0 pointer-events-none z-[1]" aria-hidden="true"></div>
-  <!-- Bottom gradient fade into next section -->
-  <div class="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-canvas to-transparent pointer-events-none z-[3]" aria-hidden="true"></div>
-
-  <div class="hero-grid relative z-[2] max-w-[1200px] mx-auto grid grid-cols-2 gap-14 items-center">
-
-    <!-- Left: content -->
-    <div>
-
-      <!-- Headline: sans-serif, mixed-case, confident -->
-      <h1 class="headline-fluid font-sans font-semibold leading-[1.08] tracking-[-0.03em] text-ink mb-6">
-        Scaffold Rust&nbsp;+&nbsp;Next.js<br />
-        <span class="text-orange">in one command.</span>
-      </h1>
-
-      <!-- Supporting copy: two lines max -->
-      <p class="text-[1.0625rem] leading-[1.7] text-ink-2 max-w-[460px] mb-10">
-        Production-ready Rust/Axum backend and Next.js frontend,
-        wired together from a single interactive prompt.
-      </p>
-
-      <!-- CopyCommand as the focused install CTA -->
-      <div class="mb-6">
-        <CopyCommand client:load />
+  <div class="hero-inner">
+    <!-- Terminal Badge -->
+    <div class="hero-badge-row">
+      <div class="terminal-badge flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-green animate-indicator-pulse" aria-hidden="true"></span>
+        <span>v{pkg.version}</span>
       </div>
+      <div class="terminal-badge">
+        <span>Open Source · MIT</span>
+      </div>
+    </div>
 
-      <!-- Single secondary text link -->
-      <a href="/introduction"
-         class="inline-flex items-center gap-1.5 font-sans text-[0.875rem] text-ink-3 no-underline
-                hover:text-ink transition-colors duration-150">
-        Read the docs
-        <span aria-hidden="true" class="text-orange">→</span>
+    <!-- Headline -->
+    <h1 class="hero-headline">
+      <span class="hero-headline-bright">Scaffold Rust&nbsp;+&nbsp;Next.js</span><br />
+      <em class="hero-headline-accent">in a single command.</em>
+    </h1>
+
+    <p class="hero-body">
+      Production-ready Rust/Axum backend and Next.js frontend,
+      connected from a single interactive prompt.
+    </p>
+
+    <!-- CTAs -->
+    <div class="hero-actions">
+      <a href="/docs/introduction" class="hero-btn-primary">
+        Read the Docs <span aria-hidden="true">→</span>
       </a>
-
+      <a href="/docs/why-ruxum" class="hero-btn-secondary">
+        Why Ruxum?
+      </a>
     </div>
 
-    <!-- Right: terminal demo — clean border, no glow -->
-    <div class="w-full relative rounded-xl overflow-hidden border border-border-2
-                [box-shadow:0_16px_48px_rgba(0,0,0,0.5)]">
-      <TerminalWizard client:visible />
-      <Image
-        src={houston}
-        alt="Houston, the Astro mascot, giving a thumbs up"
-        width={64}
-        height={64}
-        loading="eager"
-        fetchpriority="high"
-        class="absolute -bottom-8 -right-8 opacity-50 hover:opacity-80 transition-opacity duration-300"
-      />
+    <!-- Command block -->
+    <div class="hero-cta">
+      <CopyCommand client:load />
     </div>
 
+    <!-- Terminal -->
+    <div class="hero-terminal-wrapper">
+      <div class="hero-terminal-header">
+        <div class="flex gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-border-3"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-border-3"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-border-3"></div>
+        </div>
+        <div class="font-mono text-[0.625rem] text-ink-4 uppercase tracking-widest">interactive-wizard.sh</div>
+        <div class="w-10"></div>
+      </div>
+      <div class="hero-terminal">
+        <TerminalWizard client:visible />
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
-  @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-    section { padding-top: 4rem; padding-bottom: 3.5rem; }
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 2rem 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-canvas);
   }
-  @media (max-width: 480px) {
-    section { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 3rem; }
-    .hero-grid > div:last-child { max-width: 100%; }
+
+  .hero-inner {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-headline {
+    font-family: var(--font-sans);
+    font-size: clamp(3.5rem, 8vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    color: var(--color-ink);
+  }
+
+  .hero-headline-bright {
+    color: #C44B38; /* Slightly desaturated Rust brand orange */
+    display: inline-block;
+    filter: drop-shadow(0 0 15px rgba(196, 75, 56, 0.35));
+    text-shadow: 
+      0 0 30px rgba(196, 75, 56, 0.25),
+      0 0 60px rgba(196, 75, 56, 0.1);
+  }
+
+  .hero-headline-accent {
+    font-style: normal;
+    color: var(--color-ink-2);
+    position: relative;
+    display: inline-block;
+    opacity: 0.8;
+  }
+  
+  .hero-headline-accent::after {
+    content: "";
+    position: absolute;
+    bottom: 0.1em;
+    left: 0;
+    width: 100%;
+    height: 0.05em;
+    background: var(--color-orange-molten);
+    z-index: -1;
+    filter: blur(8px);
+  }
+
+  .hero-body {
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--color-ink-2);
+    max-width: 540px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .hero-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-orange);
+    border-radius: 8px;
+    border: 1px solid var(--color-orange-hi);
+    box-shadow: 0 4px 20px -4px var(--color-orange-embers);
+    transition: all 0.2s ease;
+  }
+  .hero-btn-primary:hover {
+    background: var(--color-orange-hi);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px var(--color-orange-embers);
+  }
+
+  .hero-btn-secondary {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink-2);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-2);
+    background: var(--color-surface);
+    transition: all 0.2s ease;
+  }
+  .hero-btn-secondary:hover {
+    color: var(--color-ink);
+    border-color: var(--color-border-3);
+    background: var(--color-surface-2);
+  }
+
+  .hero-cta {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4rem;
+    width: 100%;
+  }
+
+  .hero-terminal-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-2);
+    border-bottom: none;
+    box-shadow: 
+      0 -20px 80px -20px rgba(0,0,0,0.8),
+      inset 0 1px 0 0 rgba(255,255,255,0.03);
+  }
+
+  .hero-terminal-header {
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border-2);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero-terminal {
+    width: 100%;
+    background: var(--color-canvas);
+  }
+
+  @media (max-width: 640px) {
+    .hero-section { padding: 6rem 1.25rem 0; }
+    .hero-headline { font-size: 2.75rem; }
+    .hero-actions { flex-direction: column; width: 100%; }
+    .hero-btn-primary, .hero-btn-secondary { width: 100%; justify-content: center; }
   }
 </style>

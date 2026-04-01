@@ -1,3 +1,27 @@
 {
-  "framework": "astro"
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/introduction",          "destination": "/docs/introduction",          "permanent": true },
+    { "source": "/installation",           "destination": "/docs/installation",           "permanent": true },
+    { "source": "/scaffold/:path*",        "destination": "/docs/scaffold/:path*",        "permanent": true },
+    { "source": "/configuration/:path*",   "destination": "/docs/configuration/:path*",   "permanent": true }
+  ]
 }

@@ -1,0 +1,161 @@
+---
+title: First Steps
+description: What to do after scaffolding — adding routes, pages, and getting your project ready.
+---
+import Callout from '../../components/docs/Callout.astro';
+
+You have run `npx create-ruxum-app@latest` and your project is on disk. Here is what to do next.
+
+## Rust API: adding your first route
+
+Open `src/routes/mod.rs`. The `build_router` function is where all routes are registered. Add a new module and wire it in:
+
+```rust
+// src/routes/mod.rs
+mod health;
+mod todos;        // add this
+
+pub fn build_router(state: AppState) -> Router {
+    Router::new()
+        .route("/health", get(health::health_check))
+        .route("/todos", get(todos::list).post(todos::create))  // add this
+        .with_state(state)
+        .layer(/* middleware stack */)
+}
+```
+
+Create `src/routes/todos.rs`:
+
+```rust
+use axum::{extract::State, Json};
+use crate::{AppState, errors::AppError};
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, sqlx::FromRow)]
+pub struct Todo {
+    pub id: i64,
+    pub title: String,
+    pub done: bool,
+}
+
+pub async fn list(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<Todo>>, AppError> {
+    let todos = sqlx::query_as!(Todo, "SELECT id, title, done FROM todos")
+        .fetch_all(&state.db)
+        .await?;
+    Ok(Json(todos))
+}
+```
+
+Run with `cargo run` and hit `http://localhost:3000/todos`.
+
+## Next.js: adding your first page
+
+Create a new directory inside `app/` with a `page.tsx` file:
+
+```tsx
+// app/about/page.tsx
+export default function AboutPage() {
+  return (
+    <main>
+      <h1>About</h1>
+    </main>
+  );
+}
+```
+
+This page is now available at `/about`. Next.js picks it up automatically — no routing config needed.
+
+### Fetching from the Rust API
+
+In a Server Component, call your API directly:
+
+```tsx
+// app/todos/page.tsx
+interface Todo {
+  id: number;
+  title: string;
+  done: boolean;
+}
+
+async function getTodos(): Promise<Todo[]> {
+  const res = await fetch('http://localhost:3000/todos', { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch todos');
+  return res.json();
+}
+
+export default async function TodosPage() {
+  const todos = await getTodos();
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id}>{todo.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Environment variables
+
+Copy `.env.example` to `.env` and fill in your values before running:
+
+```sh
+cp .env.example .env
+```
+
+The most important variable is `DATABASE_URL`. The Axum server will panic at startup if it cannot connect to the database.
+
+<Callout type="note" title="SQLite for local development">
+  If you chose SQLite, your `DATABASE_URL` is `sqlite:./dev.db`. The database file is created automatically on first run — no setup needed.
+</Callout>
+
+## Running the dev server
+
+### Rust API
+
+```sh
+cargo run
+# Server listening on http://127.0.0.1:3000
+```
+
+For auto-reload on file changes, install `cargo-watch`:
+
+```sh
+cargo install cargo-watch
+cargo watch -x run
+```
+
+### Next.js
+
+```sh
+npm run dev
+# App available at http://localhost:3000
+```
+
+## Building for production
+
+### Rust
+
+```sh
+cargo build --release
+# Binary at ./target/release/my-app
+```
+
+The release binary is fully self-contained. Copy it to your server and run it with environment variables set.
+
+### Next.js
+
+```sh
+npm run build
+npm start
+```
+
+Or deploy to Vercel with `vercel --prod` — the scaffold includes a `next.config.ts` ready for Vercel deployment.
+
+## Next: dive into the scaffold guides
+
+- [Rust API details](/docs/scaffold/rust) — middleware, adding routes, auth extractors
+- [Next.js details](/docs/scaffold/nextjs) — TypeScript config, fetching data, Tailwind
+- [Full-stack guide](/docs/scaffold/fullstack) — connecting both services, CORS, environment

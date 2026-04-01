@@ -2,6 +2,7 @@
 title: Authentication
 description: How JWT authentication works in the generated scaffold.
 ---
+import Callout from '../../../components/docs/Callout.astro';
 
 When you opt into JWT auth, the scaffold generates a complete stateless authentication system using [jsonwebtoken](https://github.com/Keats/jsonwebtoken).
 
@@ -65,13 +66,13 @@ JWT_SECRET=a-long-random-string-change-in-production
 JWT_EXPIRY_HOURS=24
 ```
 
-:::caution
-Generate a strong `JWT_SECRET` for production. A minimum of 32 random bytes is recommended:
+<Callout type="warning" title="Production security">
+  Generate a strong `JWT_SECRET` for production. A minimum of 32 random bytes is recommended:
 
-```sh
-openssl rand -hex 32
-```
-:::
+  ```sh
+  openssl rand -hex 32
+  ```
+</Callout>
 
 ## Password hashing
 

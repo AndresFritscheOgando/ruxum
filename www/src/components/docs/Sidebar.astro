@@ -1,0 +1,34 @@
+---
+import { SIDEBAR_NAV } from '../../lib/nav';
+import SidebarGroup from './SidebarGroup.astro';
+
+interface Props {
+  currentSlug: string;
+}
+const { currentSlug } = Astro.props;
+---
+
+<aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+  <div class="docs-sidebar__inner">
+    {SIDEBAR_NAV.map((group) => {
+      const groupIsOpen = group.items.some(item => item.slug === currentSlug);
+      return (
+        <SidebarGroup title={group.title} isOpen={groupIsOpen}>
+          <ul>
+            {group.items.map((item) => (
+              <li>
+                <a
+                  href={`/docs/${item.slug}`}
+                  class:list={['sidebar-link', { 'sidebar-link--active': item.slug === currentSlug }]}
+                  aria-current={item.slug === currentSlug ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </SidebarGroup>
+      );
+    })}
+  </div>
+</aside>
