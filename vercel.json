@@ -1,6 +1,3 @@
 {
-  "framework": "astro",
-  "installCommand": "npm --prefix www install",
-  "buildCommand": "npm --prefix www run build",
-  "outputDirectory": "www/dist"
+  "framework": "astro"
 }
