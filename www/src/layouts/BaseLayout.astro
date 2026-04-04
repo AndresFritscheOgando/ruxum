@@ -7,6 +7,7 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  ogType?: string;
   noFooter?: boolean;
   docsMode?: boolean;
 }
@@ -14,10 +15,13 @@ interface Props {
 const {
   title,
   description = 'Scaffold a production-ready Rust/Axum + Next.js app in a single command.',
-  ogImage = 'https://create-ruxum-app.vercel.app/og-image.png',
+  ogImage = 'https://ruxum.dev/og-image.png',
+  ogType = 'website',
   noFooter = false,
   docsMode = false,
 } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, 'https://ruxum.dev').href;
 
 import jbMono400 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2?url';
 import jbMono600 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2?url';
@@ -30,12 +34,16 @@ import jbMono600 from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f0e0d" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalUrl} />
+  <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
   <link rel="me" href="https://github.com/AndresFritscheOgando/ruxum" />
   <link rel="preload" as="font" href={jbMono600} type="font/woff2" crossorigin="anonymous" />
   <link rel="preload" as="font" href={jbMono400} type="font/woff2" crossorigin="anonymous" />
   <title>{title}</title>
   <meta name="description" content={description} />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content={ogType} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={ogImage} />

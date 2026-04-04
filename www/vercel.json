@@ -19,6 +19,7 @@
     }
   ],
   "redirects": [
+    { "source": "/docs",                   "destination": "/docs/introduction",           "permanent": true },
     { "source": "/introduction",          "destination": "/docs/introduction",          "permanent": true },
     { "source": "/installation",           "destination": "/docs/installation",           "permanent": true },
     { "source": "/scaffold/:path*",        "destination": "/docs/scaffold/:path*",        "permanent": true },
