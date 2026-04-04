@@ -1,4 +1,4 @@
-# create-ruxum-app
+# Ruxum
 
 [![npm version](https://img.shields.io/npm/v/create-ruxum-app?color=cyan)](https://www.npmjs.com/package/create-ruxum-app)
 [![Node.js](https://img.shields.io/node/v/create-ruxum-app)](https://nodejs.org)
