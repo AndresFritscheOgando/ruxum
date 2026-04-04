@@ -10,7 +10,7 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 		server: {
-			allowedHosts: ['ruxum.dev', 'localhost', '127.0.0.1'],
+			allowedHosts: ['ruxum.dev', 'localhost', '127.0.0.1', '.vercel.app'],
 		},
 	},
 	integrations: [
