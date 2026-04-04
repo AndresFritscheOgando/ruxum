@@ -10,11 +10,15 @@ use crate::config::{ScaffoldConfig, ScaffoldType};
 
 pub fn run(config: &ScaffoldConfig) -> Result<()> {
     let cwd = std::env::current_dir()?;
+    let base_name = Path::new(&config.project_name)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(&config.project_name);
 
     match config.scaffold_type {
         ScaffoldType::Rust => {
             let dir = cwd.join(&config.project_name);
-            rust::scaffold(&dir, config.rust.as_ref().unwrap())?;
+            rust::scaffold(&dir, config.rust.as_ref().unwrap(), base_name)?;
             print_success(&config.project_name, &config.scaffold_type);
             if config.run_install {
                 run_install_cargo(&dir)?;
@@ -22,7 +26,7 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
         }
         ScaffoldType::Nextjs => {
             let dir = cwd.join(&config.project_name);
-            nextjs::scaffold(&dir, config.nextjs.as_ref().unwrap())?;
+            nextjs::scaffold(&dir, config.nextjs.as_ref().unwrap(), base_name)?;
             print_success(&config.project_name, &config.scaffold_type);
             if config.run_install {
                 run_install_npm(&dir)?;
@@ -35,8 +39,11 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
             let api_dir = root.join("api");
             let web_dir = root.join("www");
 
-            rust::scaffold(&api_dir, config.rust.as_ref().unwrap())?;
-            nextjs::scaffold(&web_dir, config.nextjs.as_ref().unwrap())?;
+            let api_name = format!("{}-api", base_name);
+            let web_name = format!("{}-web", base_name);
+
+            rust::scaffold(&api_dir, config.rust.as_ref().unwrap(), &api_name)?;
+            nextjs::scaffold(&web_dir, config.nextjs.as_ref().unwrap(), &web_name)?;
             write_fullstack_readme(&root, config)?;
             print_success(&config.project_name, &config.scaffold_type);
 
@@ -158,18 +165,3 @@ fn print_next_steps(config: &ScaffoldConfig) {
     println!();
 }
 
-pub fn copy_template(
-    template_path: &str,
-    target_path: &Path,
-    variables: &std::collections::HashMap<&str, String>,
-) -> Result<()> {
-    let mut content = std::fs::read_to_string(format!("template/{}", template_path))?;
-    for (key, value) in variables {
-        content = content.replace(&format!("{{{{{}}}}}", key), value);
-    }
-    if let Some(parent) = target_path.parent() {
-        std::fs::create_dir_all(parent)?;
-    }
-    std::fs::write(target_path, content)?;
-    Ok(())
-}
