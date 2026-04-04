@@ -4,7 +4,7 @@ use std::path::Path;
 
 use crate::config::{DbChoice, RustConfig};
 
-pub fn scaffold(dir: &Path, cfg: &RustConfig) -> Result<()> {
+pub fn scaffold(dir: &Path, cfg: &RustConfig, project_name: &str) -> Result<()> {
     let has_db = cfg.db != DbChoice::None;
 
     fs::create_dir_all(dir.join("src/handlers"))?;
@@ -15,7 +15,7 @@ pub fn scaffold(dir: &Path, cfg: &RustConfig) -> Result<()> {
         fs::create_dir_all(dir.join("src/auth"))?;
     }
 
-    write(dir, "Cargo.toml", &cargo_toml(cfg))?;
+    write(dir, "Cargo.toml", &cargo_toml(cfg, project_name))?;
     write(dir, "src/main.rs", &main_rs(cfg))?;
     write(dir, "src/router.rs", router_rs())?;
     write(dir, "src/config.rs", &config_rs(cfg))?;
@@ -52,76 +52,44 @@ fn write(dir: &Path, path: &str, content: &str) -> Result<()> {
     Ok(())
 }
 
-fn cargo_toml(cfg: &RustConfig) -> String {
-    let mut s = format!(
-        r#"[package]
-name = "{{project_name}}"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-axum = {{ version = "0.7", features = ["macros"] }}
-tokio = {{ version = "1", features = ["full"] }}
-tower = "0.4"
-tower-http = {{ version = "0.5", features = ["cors", "trace"] }}
-serde = {{ version = "1", features = ["derive"] }}
-serde_json = "1"
-tracing = "0.1"
-tracing-subscriber = {{ version = "0.3", features = ["env-filter"] }}
-dotenvy = "0.15"
-config = "0.14"
-anyhow = "1"
-thiserror = "1"
-"#
-    );
+fn cargo_toml(cfg: &RustConfig, project_name: &str) -> String {
+    let template = include_str!("../templates/rust/cargo_toml.rs");
+    let mut db_deps = String::new();
+    let mut auth_deps = String::new();
 
     match &cfg.db {
-        DbChoice::SqlxPostgres => s.push_str(
-            r#"sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "macros"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-"#,
+        DbChoice::SqlxPostgres => db_deps.push_str(
+            "sqlx = { version = \"0.7\", features = [\"runtime-tokio-rustls\", \"postgres\", \"uuid\", \"chrono\", \"macros\"] }\nuuid = { version = \"1\", features = [\"v4\", \"serde\"] }\nchrono = { version = \"0.4\", features = [\"serde\"] }\n",
         ),
-        DbChoice::SqlxMysql => s.push_str(
-            r#"sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "mysql", "uuid", "chrono", "macros"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-"#,
+        DbChoice::SqlxMysql => db_deps.push_str(
+            "sqlx = { version = \"0.7\", features = [\"runtime-tokio-rustls\", \"mysql\", \"uuid\", \"chrono\", \"macros\"] }\nuuid = { version = \"1\", features = [\"v4\", \"serde\"] }\nchrono = { version = \"0.4\", features = [\"serde\"] }\n",
         ),
-        DbChoice::SqlxSqlite => s.push_str(
-            r#"sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "uuid", "chrono", "macros"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-"#,
+        DbChoice::SqlxSqlite => db_deps.push_str(
+            "sqlx = { version = \"0.7\", features = [\"runtime-tokio-rustls\", \"sqlite\", \"uuid\", \"chrono\", \"macros\"] }\nuuid = { version = \"1\", features = [\"v4\", \"serde\"] }\nchrono = { version = \"0.4\", features = [\"serde\"] }\n",
         ),
-        DbChoice::SeaormPostgres => s.push_str(
-            r#"sea-orm = { version = "0.12", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-"#,
+        DbChoice::SeaormPostgres => db_deps.push_str(
+            "sea-orm = { version = \"0.12\", features = [\"sqlx-postgres\", \"runtime-tokio-rustls\", \"macros\"] }\nuuid = { version = \"1\", features = [\"v4\", \"serde\"] }\nchrono = { version = \"0.4\", features = [\"serde\"] }\n",
         ),
-        DbChoice::SeaormMysql => s.push_str(
-            r#"sea-orm = { version = "0.12", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-"#,
+        DbChoice::SeaormMysql => db_deps.push_str(
+            "sea-orm = { version = \"0.12\", features = [\"sqlx-mysql\", \"runtime-tokio-rustls\", \"macros\"] }\nuuid = { version = \"1\", features = [\"v4\", \"serde\"] }\nchrono = { version = \"0.4\", features = [\"serde\"] }\n",
         ),
         DbChoice::None => {}
     }
 
     if cfg.auth {
-        s.push_str(
-            r#"jsonwebtoken = "9"
-axum-extra = { version = "0.9", features = ["typed-header"] }
-headers = "0.4"
-"#,
+        auth_deps.push_str(
+            "jsonwebtoken = \"9\"\naxum-extra = { version = \"0.9\", features = [\"typed-header\"] }\nheaders = \"0.4\"\n",
         );
     }
 
-    s
+    template
+        .replace("{{project_name}}", project_name)
+        .replace("{{db_dependencies}}", &db_deps)
+        .replace("{{auth_dependencies}}", &auth_deps)
 }
 
 fn main_rs(cfg: &RustConfig) -> String {
+    let template = include_str!("../templates/rust/main_rs.rs");
     let has_db = cfg.db != DbChoice::None;
 
     let mods = [
@@ -152,62 +120,19 @@ fn main_rs(cfg: &RustConfig) -> String {
         "    let state = Arc::new(AppState { config: cfg });"
     };
 
-    format!(
-        r#"{mods}
-
-use std::sync::Arc;
-use tracing_subscriber::{{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter}};
-
-pub struct AppState {{
-{state_fields}
-}}
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {{
-    tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
-        .with(tracing_subscriber::fmt::layer())
-        .init();
-
-    dotenvy::dotenv().ok();
-    let cfg = config::AppConfig::load()?;
-    let addr = format!("{{}}:{{}}", cfg.host, cfg.port);
-{db_connect}
-{state_init}
-    let app = router::app_router(state);
-
-    tracing::info!("Listening on {{}}", addr);
-    let listener = tokio::net::TcpListener::bind(&addr).await?;
-    axum::serve(listener, app).await?;
-    Ok(())
-}}
-"#
-    )
+    template
+        .replace("{{mods}}", &mods)
+        .replace("{{state_fields}}", state_fields)
+        .replace("{{db_connect}}", db_connect)
+        .replace("{{state_init}}", state_init)
 }
 
 fn router_rs() -> &'static str {
-    r#"use axum::{routing::get, Router};
-use std::sync::Arc;
-use tower_http::{cors::CorsLayer, trace::TraceLayer};
-use crate::AppState;
-
-pub fn app_router(state: Arc<AppState>) -> Router {
-    Router::new()
-        .route("/health", get(crate::handlers::health::health_check))
-        // If JWT selected, add a protected route example:
-        // .route("/me", get(crate::handlers::user::me)
-        //     .route_layer(axum::middleware::from_fn_with_state(
-        //         state.clone(),
-        //         crate::auth::middleware::require_auth,
-        //     )))
-        .layer(CorsLayer::permissive())
-        .layer(TraceLayer::new_for_http())
-        .with_state(state)
-}
-"#
+    include_str!("../templates/rust/router_rs.rs")
 }
 
 fn config_rs(cfg: &RustConfig) -> String {
+    let template = include_str!("../templates/rust/config_rs.rs");
     let has_db = cfg.db != DbChoice::None;
 
     let mut fields = vec![
@@ -220,76 +145,20 @@ fn config_rs(cfg: &RustConfig) -> String {
     if cfg.auth {
         fields.push("    pub jwt_secret: Option<String>,".to_string());
     }
-    let fields = fields.join("\n");
-
-    format!(
-        r#"use anyhow::Result;
-use serde::Deserialize;
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct AppConfig {{
-{fields}
-}}
-
-impl AppConfig {{
-    pub fn load() -> Result<Self> {{
-        let cfg = config::Config::builder()
-            .add_source(config::Environment::default())
-            .set_default("host", "127.0.0.1")?
-            .set_default("port", 3000)?
-            .build()?;
-        Ok(cfg.try_deserialize()?)
-    }}
-}}
-"#
-    )
+    
+    template.replace("{{fields}}", &fields.join("\n"))
 }
 
 fn errors_rs() -> &'static str {
-    r#"use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
-use serde_json::json;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum AppError {
-    #[error("Not found")]
-    NotFound,
-    #[error("Unauthorized")]
-    Unauthorized,
-    #[error("Bad request: {0}")]
-    BadRequest(String),
-    #[error("Internal server error: {0}")]
-    InternalServerError(String),
-}
-
-impl IntoResponse for AppError {
-    fn into_response(self) -> Response {
-        let (status, message) = match &self {
-            AppError::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
-            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
-            AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
-        };
-        (status, Json(json!({ "error": message }))).into_response()
-    }
-}
-"#
+    include_str!("../templates/rust/errors_rs.rs")
 }
 
 fn health_rs() -> &'static str {
-    r#"use axum::Json;
-use serde_json::{json, Value};
-
-pub async fn health_check() -> Json<Value> {
-    Json(json!({
-        "status": "ok",
-        "version": env!("CARGO_PKG_VERSION")
-    }))
-}
-"#
+    include_str!("../templates/rust/health_rs.rs")
 }
 
 fn db_sqlx_rs(db: &DbChoice) -> String {
+    let template = include_str!("../templates/rust/db_sqlx_rs.rs");
     let (pool_options, pool_type, module) = match db {
         DbChoice::SqlxPostgres => ("PgPoolOptions", "PgPool", "sqlx::postgres"),
         DbChoice::SqlxMysql => ("MySqlPoolOptions", "MySqlPool", "sqlx::mysql"),
@@ -297,113 +166,43 @@ fn db_sqlx_rs(db: &DbChoice) -> String {
         _ => ("PgPoolOptions", "PgPool", "sqlx::postgres"),
     };
 
-    format!(
-        r#"use {module}::{pool_options};
-
-pub type Db = sqlx::{pool_type};
-
-pub async fn connect(url: &str) -> anyhow::Result<Db> {{
-    let pool = {pool_options}::new()
-        .max_connections(10)
-        .connect(url)
-        .await?;
-    Ok(pool)
-}}
-"#
-    )
+    template
+        .replace("{{module}}", module)
+        .replace("{{pool_options}}", pool_options)
+        .replace("{{pool_type}}", pool_type)
 }
 
 fn db_seaorm_rs() -> &'static str {
-    r#"use sea_orm::{Database, DatabaseConnection};
-
-pub type Db = DatabaseConnection;
-
-pub async fn connect(url: &str) -> anyhow::Result<Db> {
-    let db = Database::connect(url).await?;
-    Ok(db)
-}
-"#
+    include_str!("../templates/rust/db_seaorm_rs.rs")
 }
 
 fn auth_middleware_rs() -> &'static str {
-    r#"use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
-use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
-    TypedHeader,
-};
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use crate::{errors::AppError, AppState};
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: usize,
-}
-
-pub fn encode_token(secret: &str, sub: &str, exp: usize) -> Result<String, AppError> {
-    encode(
-        &Header::default(),
-        &Claims { sub: sub.to_string(), exp },
-        &EncodingKey::from_secret(secret.as_bytes()),
-    )
-    .map_err(|e| AppError::InternalServerError(e.to_string()))
-}
-
-pub fn decode_token(secret: &str, token: &str) -> Result<Claims, AppError> {
-    decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(secret.as_bytes()),
-        &Validation::default(),
-    )
-    .map(|data| data.claims)
-    .map_err(|_| AppError::Unauthorized)
-}
-
-pub struct AuthUser(pub Claims);
-
-#[axum::async_trait]
-impl FromRequestParts<Arc<AppState>> for AuthUser {
-    type Rejection = AppError;
-
-    async fn from_request_parts(
-        parts: &mut Parts,
-        state: &Arc<AppState>,
-    ) -> Result<Self, Self::Rejection> {
-        let TypedHeader(Authorization(bearer)) =
-            TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, state)
-                .await
-                .map_err(|_| AppError::Unauthorized)?;
-
-        let secret = state.config.jwt_secret.as_deref().unwrap_or("");
-        let claims = decode_token(secret, bearer.token())?;
-        Ok(AuthUser(claims))
-    }
-}
-"#
+    include_str!("../templates/rust/auth_rs.rs")
 }
 
 fn env_example(cfg: &RustConfig) -> String {
-    let mut s = "HOST=127.0.0.1\nPORT=3000\n".to_string();
+    let template = include_str!("../templates/rust/env_example.rs");
+    let mut db_url = String::new();
+    let mut jwt_secret = String::new();
 
     match &cfg.db {
         DbChoice::SqlxPostgres | DbChoice::SeaormPostgres => {
-            s.push_str("DATABASE_URL=postgres://user:password@localhost/mydb\n");
+            db_url.push_str("DATABASE_URL=postgres://user:password@localhost/mydb");
         }
         DbChoice::SqlxMysql | DbChoice::SeaormMysql => {
-            s.push_str("DATABASE_URL=mysql://user:password@localhost/mydb\n");
+            db_url.push_str("DATABASE_URL=mysql://user:password@localhost/mydb");
         }
         DbChoice::SqlxSqlite => {
-            s.push_str("DATABASE_URL=sqlite://./dev.db\n");
+            db_url.push_str("DATABASE_URL=sqlite://./dev.db");
         }
         DbChoice::None => {}
     }
 
     if cfg.auth {
-        s.push_str("JWT_SECRET=changeme_use_a_long_random_string_in_production\n");
+        jwt_secret.push_str("JWT_SECRET=changeme_use_a_long_random_string_in_production");
     }
 
-    s
+    template
+        .replace("{{database_url}}", &db_url)
+        .replace("{{jwt_secret}}", &jwt_secret)
 }
