@@ -31,11 +31,14 @@ CLAUDE.md
 /docs/
 
 # Template documentation (auto-generated)
-*_GUIDE.md
-*_INTEGRATION.md
-*_SUMMARY.md
-*_QUICK_*.md
-*_EXAMPLES.rs
+*_guide.md
+*_integration.md
+*_summary.md
+*_quick_*.md
+*_examples.rs
+
+# Template naming guides (should be tracked)
+!TEMPLATE_NAMING_GUIDE.md
 
 # Deployment guides
 EC2_*.md
