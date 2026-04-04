@@ -30,6 +30,16 @@ CLAUDE.md
 # Docs (internal planning, not for version control)
 /docs/
 
-.vercel
+# Template documentation (auto-generated)
+*_GUIDE.md
+*_INTEGRATION.md
+*_SUMMARY.md
+*_QUICK_*.md
+*_EXAMPLES.rs
+
+# Deployment guides
+EC2_*.md
+TAILWIND_*.md
+VERCEL_*.md
 
 .vercel

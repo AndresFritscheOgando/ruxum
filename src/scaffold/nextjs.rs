@@ -43,6 +43,9 @@ pub fn scaffold(dir: &Path, cfg: &NextjsConfig, project_name: &str) -> Result<()
 
     if cfg.shadcn {
         write(dir, "components.json", &components_json(cfg))?;
+        write(dir, "src/components/ui/README.md", shadcn_ui_readme())?;
+        write(dir, "src/components/ui/.gitkeep", "")?;
+        write(dir, "src/lib/utils.ts", shadcn_utils())?;
     }
 
     if has_orm {
@@ -89,13 +92,13 @@ fn package_json(cfg: &NextjsConfig, project_name: &str) -> String {
     let has_orm = cfg.orm != Orm::None;
 
     let mut deps: Vec<(&str, &str)> = vec![
-        ("next", "16.2.1"),
+        ("next", "15.1.3"),
         ("react", "19.2.4"),
         ("react-dom", "19.2.4"),
     ];
 
     if cfg.next_auth {
-        deps.push(("next-auth", "5.0.0-beta.29"));
+        deps.push(("next-auth", "5.0.0-beta.35"));
     }
 
     if cfg.orm == Orm::Prisma {
@@ -119,13 +122,18 @@ fn package_json(cfg: &NextjsConfig, project_name: &str) -> String {
         }
     }
 
+    if cfg.shadcn {
+        deps.push(("clsx", "2.1.1"));
+        deps.push(("tailwind-merge", "2.5.2"));
+    }
+
     let mut dev_deps: Vec<(&str, &str)> = vec![
         ("typescript", "6.0.2"),
         ("@types/node", "25.5.0"),
         ("@types/react", "19.2.14"),
         ("@types/react-dom", "19.2.7"),
         ("eslint", "9.30.0"),
-        ("eslint-config-next", "16.2.1"),
+        ("eslint-config-next", "15.1.3"),
     ];
 
     if cfg.tailwind {
@@ -415,6 +423,69 @@ const eslintConfig = [
 ];
 
 export default eslintConfig;
+"#
+}
+
+fn shadcn_ui_readme() -> &'static str {
+    r#"# shadcn/ui Components
+
+This directory contains pre-built, customizable UI components from [shadcn/ui](https://ui.shadcn.com).
+
+## Adding Components
+
+Components are not pre-installed to keep the project lean. Add only what you need:
+
+```bash
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add dialog
+# etc.
+```
+
+## Available Components
+
+Browse the full component library: https://ui.shadcn.com/docs/components
+
+## Usage
+
+Once installed, import and use components in your code:
+
+```tsx
+import { Button } from "@/components/ui/button"
+
+export function MyComponent() {
+  return <Button>Click me</Button>
+}
+```
+
+## Customization
+
+All components are copied into this directory, so you can freely customize them:
+- Modify styling and behavior
+- Add new variants
+- Extend functionality
+
+The `components.json` file controls how components are generated. See https://ui.shadcn.com/docs/cli for more details.
+
+## Tailwind CSS Required
+
+shadcn/ui requires Tailwind CSS. Ensure it's installed and configured in `tailwind.config.ts`.
+
+## Resources
+
+- [shadcn/ui Documentation](https://ui.shadcn.com/docs)
+- [Component Showcase](https://ui.shadcn.com/docs/components)
+- [CLI Reference](https://ui.shadcn.com/docs/cli)
+"#
+}
+
+fn shadcn_utils() -> &'static str {
+    r#"import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 "#
 }
 

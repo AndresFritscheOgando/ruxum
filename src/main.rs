@@ -1,6 +1,7 @@
 mod cli;
 mod config;
 mod scaffold;
+mod template_engine;
 mod wizard;
 
 use anyhow::Result;

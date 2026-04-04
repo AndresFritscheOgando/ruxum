@@ -16,4 +16,5 @@ dotenvy = "0.15"
 config = "0.14"
 anyhow = "1"
 thiserror = "1"
+validator = { version = "0.18", features = ["derive"] }
 {{dependencies}}

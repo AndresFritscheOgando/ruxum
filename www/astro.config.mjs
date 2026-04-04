@@ -5,10 +5,13 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-	site: 'https://create-ruxum-app.vercel.app',
+	site: 'https://ruxum.dev',
 	output: 'static',
 	vite: {
 		plugins: [tailwindcss()],
+		server: {
+			allowedHosts: ['ruxum.dev', 'localhost', '127.0.0.1', '.vercel.app'],
+		},
 	},
 	integrations: [
 		mdx(),
@@ -16,7 +19,7 @@ export default defineConfig({
 		sitemap({
 			serialize(item) {
 				const lastmod = new Date().toISOString().split('T')[0];
-				const isHome = item.url === 'https://create-ruxum-app.vercel.app/';
+				const isHome = item.url === 'https://ruxum.dev/';
 				return {
 					...item,
 					lastmod,

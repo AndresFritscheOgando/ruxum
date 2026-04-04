@@ -1,5 +1,6 @@
 mod nextjs;
 mod rust;
+pub mod validator;
 
 use anyhow::Result;
 use console::Style;
@@ -19,6 +20,7 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
         ScaffoldType::Rust => {
             let dir = cwd.join(&config.project_name);
             rust::scaffold(&dir, config.rust.as_ref().unwrap(), base_name)?;
+            validate_scaffold(&dir, &config.scaffold_type);
             print_success(&config.project_name, &config.scaffold_type);
             if config.run_install {
                 run_install_cargo(&dir)?;
@@ -27,6 +29,7 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
         ScaffoldType::Nextjs => {
             let dir = cwd.join(&config.project_name);
             nextjs::scaffold(&dir, config.nextjs.as_ref().unwrap(), base_name)?;
+            validate_scaffold(&dir, &config.scaffold_type);
             print_success(&config.project_name, &config.scaffold_type);
             if config.run_install {
                 run_install_npm(&dir)?;
@@ -45,6 +48,12 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
             rust::scaffold(&api_dir, config.rust.as_ref().unwrap(), &api_name)?;
             nextjs::scaffold(&web_dir, config.nextjs.as_ref().unwrap(), &web_name)?;
             write_fullstack_readme(&root, config)?;
+
+            let rust_type = ScaffoldType::Rust;
+            let nextjs_type = ScaffoldType::Nextjs;
+            validate_scaffold(&api_dir, &rust_type);
+            validate_scaffold(&web_dir, &nextjs_type);
+
             print_success(&config.project_name, &config.scaffold_type);
 
             if config.run_install {
@@ -56,6 +65,52 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
 
     print_next_steps(config);
     Ok(())
+}
+
+fn validate_scaffold(dir: &Path, scaffold_type: &ScaffoldType) {
+    let dim = console::Style::new().dim();
+    let yellow = console::Style::new().yellow();
+
+    match scaffold_type {
+        ScaffoldType::Rust => {
+            if let Err(e) = validator::validate_rust(dir) {
+                println!(
+                    "  {} Rust syntax check: {}",
+                    yellow.apply_to("⚠"),
+                    e
+                );
+                println!("  {} Run `cargo check` in {} to see detailed errors",
+                    dim.apply_to("→"),
+                    dir.display()
+                );
+            } else {
+                let green = console::Style::new().green();
+                println!("  {} Rust syntax check passed", green.apply_to("✓"));
+            }
+        }
+        ScaffoldType::Nextjs => {
+            if let Err(e) = validator::validate_typescript(
+                &[],
+                dir,
+            ) {
+                println!(
+                    "  {} TypeScript validation: {}",
+                    yellow.apply_to("⚠"),
+                    e
+                );
+                println!("  {} Run `tsc --noEmit` in {} to see detailed errors",
+                    dim.apply_to("→"),
+                    dir.display()
+                );
+            } else {
+                let green = console::Style::new().green();
+                println!("  {} TypeScript syntax check passed", green.apply_to("✓"));
+            }
+        }
+        ScaffoldType::Fullstack => {
+            // Fullstack validates both, handled separately
+        }
+    }
 }
 
 fn write_fullstack_readme(root: &Path, config: &ScaffoldConfig) -> Result<()> {

@@ -49,7 +49,8 @@ impl FromRequestParts<Arc<AppState>> for AuthUser {
                 .await
                 .map_err(|_| AppError::Unauthorized)?;
 
-        let secret = state.config.jwt_secret.as_deref().unwrap_or("");
+        // JWT_SECRET is guaranteed to be present by AppConfig::validate() at startup
+        let secret = state.config.jwt_secret.as_deref().unwrap();
         let claims = decode_token(secret, bearer.token())?;
         Ok(AuthUser(claims))
     }
