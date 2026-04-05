@@ -68,6 +68,7 @@ impl DbProvider {
 pub struct RustConfig {
     pub db: DbChoice,
     pub auth: bool,
+    pub openapi: bool,
 }
 
 #[derive(Debug, Clone)]

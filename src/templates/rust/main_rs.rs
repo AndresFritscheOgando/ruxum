@@ -22,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
     let app = router::app_router(state);
 
     tracing::info!("Listening on {}", addr);
-    let listener = tokio::net::TcpListener::bind(&addr).await?;
+{{openapi_log}}    let listener = tokio::net::TcpListener::bind(&addr).await?;
     axum::serve(listener, app).await?;
     Ok(())
 }

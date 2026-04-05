@@ -18,3 +18,4 @@ anyhow = "1"
 thiserror = "1"
 {{db_dependencies}}
 {{auth_dependencies}}
+{{openapi_dependencies}}
