@@ -16,8 +16,8 @@
   /* Text hierarchy */
   --color-ink:   #f7f3f0;
   --color-ink-2: #b5ada5;
-  --color-ink-3: #7a716a;
-  --color-ink-4: #453f3a;
+  --color-ink-3: #8d8177;
+  --color-ink-4: #5d5550;
 
   /* Borders */
   --color-border:   #2a2724;
@@ -323,7 +323,7 @@ astro-island { display: block; }
   height: calc(100vh - var(--nav-height));
   overflow-y: auto;
   overflow-x: hidden;
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border-2);
   padding: 1.5rem 0;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-2) transparent;
@@ -351,10 +351,10 @@ astro-island { display: block; }
 .docs-toc__inner { }
 .docs-toc__label {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-ink-4);
+  color: var(--color-ink-2);
   font-weight: 600;
   margin-bottom: 0.875rem;
 }
@@ -365,8 +365,8 @@ astro-island { display: block; }
   display: block;
   padding: 0.25rem 0;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
-  color: var(--color-ink-3);
+  font-size: 0.875rem;
+  color: var(--color-ink-2);
   text-decoration: none;
   border-left: 2px solid transparent;
   padding-left: 0.625rem;
@@ -394,10 +394,10 @@ details.sidebar-group > summary::-webkit-details-marker { display: none; }
 }
 .sidebar-group__title {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-ink-4);
+  color: var(--color-ink-2);
   font-weight: 600;
 }
 .sidebar-group__arrow {
@@ -428,8 +428,8 @@ details[open].sidebar-group > .sidebar-group__content {
   display: block;
   padding: 0.3125rem 1rem 0.3125rem 2rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
-  color: var(--color-ink-3);
+  font-size: 0.9375rem;
+  color: var(--color-ink-2);
   text-decoration: none;
   border-left: 2px solid transparent;
   margin-left: -1px;
@@ -444,7 +444,6 @@ details[open].sidebar-group > .sidebar-group__content {
   color: var(--color-ink);
   font-weight: 500;
   border-left-color: var(--color-orange);
-  background: rgba(193, 68, 14, 0.06);
 }
 
 /* ── Mobile sidebar (off-canvas) ──────────────────────── */
@@ -463,6 +462,20 @@ details[open].sidebar-group > .sidebar-group__content {
   transition: border-color 0.12s ease, color 0.12s ease;
 }
 .sidebar-toggle:hover { border-color: var(--color-border-3); color: var(--color-ink); }
+
+/* ── Focus states for keyboard navigation ──────────────── */
+.sidebar-link:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: -2px;
+}
+.docs-toc__link:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: -2px;
+}
+.sidebar-group__trigger:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+}
 
 @media (max-width: 1280px) {
   .docs-shell { grid-template-columns: var(--sidebar-width) 1fr; }

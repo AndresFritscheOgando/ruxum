@@ -54,20 +54,25 @@
 .prose a {
   color: var(--color-orange-hi);
   text-decoration: underline;
-  text-decoration-color: rgba(232, 99, 42, 0.4);
+  text-decoration-color: rgba(232, 99, 42, 0.65);
   text-underline-offset: 3px;
   transition: color 0.12s ease, text-decoration-color 0.12s ease;
 }
 .prose a:hover {
   color: var(--color-ink);
-  text-decoration-color: rgba(245, 240, 235, 0.4);
+  text-decoration-color: rgba(245, 240, 235, 0.65);
+}
+.prose a:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .prose :not(pre) > code {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   background: var(--color-surface-2);
-  color: var(--color-orange-hi);
+  color: #ed7137;
   padding: 0.15em 0.45em;
   border-radius: 3px;
   border: 1px solid var(--color-border-2);
@@ -101,7 +106,7 @@
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-ink-3);
+  color: var(--color-ink-2);
   font-weight: 600;
   border-bottom: 1px solid var(--color-border-2);
   padding: 0.5rem 0.75rem;
