@@ -23,6 +23,10 @@ pub struct Args {
     #[arg(long)]
     pub auth: bool,
 
+    /// Add OpenAPI / Swagger UI documentation (Rust)
+    #[arg(long)]
+    pub openapi: bool,
+
     // --- Next.js options ---
     /// Add Tailwind CSS
     #[arg(long)]

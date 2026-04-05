@@ -6,6 +6,7 @@ use anyhow::Result;
 use console::Style;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use serde_json::Value;
 
 use crate::config::{ScaffoldConfig, ScaffoldType};
 
@@ -47,6 +48,13 @@ pub fn run(config: &ScaffoldConfig) -> Result<()> {
 
             rust::scaffold(&api_dir, config.rust.as_ref().unwrap(), &api_name)?;
             nextjs::scaffold(&web_dir, config.nextjs.as_ref().unwrap(), &web_name)?;
+
+            // If the Rust API exposes OpenAPI, inject openapi-typescript into the
+            // Next.js package.json so the frontend can generate typed clients.
+            if config.rust.as_ref().map_or(false, |r| r.openapi) {
+                inject_openapi_client(&web_dir)?;
+            }
+
             write_fullstack_readme(&root, config)?;
 
             let rust_type = ScaffoldType::Rust;
@@ -111,6 +119,33 @@ fn validate_scaffold(dir: &Path, scaffold_type: &ScaffoldType) {
             // Fullstack validates both, handled separately
         }
     }
+}
+
+fn inject_openapi_client(web_dir: &Path) -> Result<()> {
+    let pkg_path = web_dir.join("package.json");
+    let raw = std::fs::read_to_string(&pkg_path)?;
+    let mut pkg: Value = serde_json::from_str(&raw)?;
+
+    // Add openapi-typescript devDependency
+    if let Some(dev_deps) = pkg["devDependencies"].as_object_mut() {
+        dev_deps.insert(
+            "openapi-typescript".to_string(),
+            Value::String("7.8.0".to_string()),
+        );
+    }
+
+    // Add api:types script
+    if let Some(scripts) = pkg["scripts"].as_object_mut() {
+        scripts.insert(
+            "api:types".to_string(),
+            Value::String(
+                "openapi-typescript http://localhost:8080/api-docs/openapi.json -o src/lib/api.d.ts".to_string(),
+            ),
+        );
+    }
+
+    std::fs::write(pkg_path, serde_json::to_string_pretty(&pkg)?)?;
+    Ok(())
 }
 
 fn write_fullstack_readme(root: &Path, config: &ScaffoldConfig) -> Result<()> {

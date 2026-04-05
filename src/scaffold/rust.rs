@@ -17,11 +17,18 @@ pub fn scaffold(dir: &Path, cfg: &RustConfig, project_name: &str) -> Result<()> 
 
     write(dir, "Cargo.toml", &cargo_toml(cfg, project_name))?;
     write(dir, "src/main.rs", &main_rs(cfg))?;
-    write(dir, "src/router.rs", router_rs())?;
+    write(dir, "src/router.rs", &router_rs(cfg))?;
     write(dir, "src/config.rs", &config_rs(cfg))?;
     write(dir, "src/errors.rs", errors_rs())?;
     write(dir, "src/handlers/mod.rs", "pub mod health;\n")?;
-    write(dir, "src/handlers/health.rs", health_rs())?;
+    write(
+        dir,
+        "src/handlers/health.rs",
+        if cfg.openapi { health_openapi_rs() } else { health_rs() },
+    )?;
+    if cfg.openapi {
+        write(dir, "src/openapi.rs", openapi_rs())?;
+    }
 
     if has_db {
         let db_content = if cfg.db.is_sqlx() {
@@ -82,10 +89,17 @@ fn cargo_toml(cfg: &RustConfig, project_name: &str) -> String {
         );
     }
 
+    let openapi_deps = if cfg.openapi {
+        "utoipa = { version = \"4\", features = [\"axum_extras\"] }\nutoipa-swagger-ui = { version = \"7\", features = [\"axum\"] }\n"
+    } else {
+        ""
+    };
+
     template
         .replace("{{project_name}}", project_name)
         .replace("{{db_dependencies}}", &db_deps)
         .replace("{{auth_dependencies}}", &auth_deps)
+        .replace("{{openapi_dependencies}}", openapi_deps)
 }
 
 fn main_rs(cfg: &RustConfig) -> String {
@@ -99,6 +113,7 @@ fn main_rs(cfg: &RustConfig) -> String {
         "mod router;",
         if has_db { "mod db;" } else { "// mod db;" },
         if cfg.auth { "mod auth;" } else { "// mod auth;" },
+        if cfg.openapi { "mod openapi;" } else { "// mod openapi;" },
     ]
     .join("\n");
 
@@ -120,15 +135,38 @@ fn main_rs(cfg: &RustConfig) -> String {
         "    let state = Arc::new(AppState { config: cfg });"
     };
 
+    let openapi_log = if cfg.openapi {
+        "    tracing::info!(\"Swagger UI: http://{}/swagger-ui/\", addr);\n"
+    } else {
+        ""
+    };
+
     template
         .replace("{{mods}}", &mods)
         .replace("{{state_fields}}", state_fields)
         .replace("{{db_connect}}", db_connect)
         .replace("{{state_init}}", state_init)
+        .replace("{{openapi_log}}", openapi_log)
 }
 
-fn router_rs() -> &'static str {
-    include_str!("../templates/rust/router_rs.rs")
+fn router_rs(cfg: &RustConfig) -> String {
+    let template = include_str!("../templates/rust/router_rs.rs");
+
+    let openapi_imports = if cfg.openapi {
+        "use utoipa::OpenApi;\nuse utoipa_swagger_ui::SwaggerUi;\n"
+    } else {
+        ""
+    };
+
+    let openapi_routes = if cfg.openapi {
+        "        .merge(SwaggerUi::new(\"/swagger-ui\").url(\"/api-docs/openapi.json\", crate::openapi::ApiDoc::openapi()))\n"
+    } else {
+        ""
+    };
+
+    template
+        .replace("{{openapi_imports}}", openapi_imports)
+        .replace("{{openapi_routes}}", openapi_routes)
 }
 
 fn config_rs(cfg: &RustConfig) -> String {
@@ -178,6 +216,14 @@ fn db_seaorm_rs() -> &'static str {
 
 fn auth_middleware_rs() -> &'static str {
     include_str!("../templates/rust/auth_rs.rs")
+}
+
+fn health_openapi_rs() -> &'static str {
+    include_str!("../templates/rust/health_openapi_rs.rs")
+}
+
+fn openapi_rs() -> &'static str {
+    include_str!("../templates/rust/openapi_rs.rs")
 }
 
 fn env_example(cfg: &RustConfig) -> String {

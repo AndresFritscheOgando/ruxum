@@ -103,7 +103,16 @@ pub fn resolve(args: Args) -> Result<ScaffoldConfig> {
                 .interact()?
         };
 
-        Some(RustConfig { db, auth })
+        let openapi = if args.openapi {
+            true
+        } else {
+            Confirm::with_theme(&theme)
+                .with_prompt("Add OpenAPI / Swagger UI documentation?")
+                .default(false)
+                .interact()?
+        };
+
+        Some(RustConfig { db, auth, openapi })
     } else {
         None
     };
@@ -289,6 +298,7 @@ fn print_summary(
     if let Some(r) = rust {
         println!("{}", row("Rust DB:", r.db.label()));
         println!("{}", row("JWT Auth:", if r.auth { "Yes" } else { "No" }));
+        println!("{}", row("OpenAPI:", if r.openapi { "Yes" } else { "No" }));
     }
 
     if let Some(n) = nextjs {
