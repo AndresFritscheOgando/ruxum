@@ -1,0 +1,223 @@
+---
+title: Testing
+description: Write tests for your API and frontend.
+---
+
+## Testing Rust API
+
+### Unit Tests
+
+Test individual functions:
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_item() {
+        let req = CreateItemRequest { name: "".to_string() };
+        assert!(req.validate().is_err());
+
+        let req = CreateItemRequest { name: "Valid".to_string() };
+        assert!(req.validate().is_ok());
+    }
+}
+```
+
+Run with:
+```bash
+cargo test
+```
+
+### Integration Tests
+
+Create `api/tests/items_test.rs`:
+
+```rust
+#[tokio::test]
+async fn test_list_items() {
+    let db = setup_test_db().await;
+    let app = build_router(db);
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .uri("/api/items")
+                .body(Body::empty())
+                .unwrap()
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+}
+
+async fn setup_test_db() -> PgPool {
+    let db = PgPoolOptions::new()
+        .connect("postgresql://postgres:password@localhost/test_db")
+        .await
+        .expect("Failed to create test db");
+    
+    sqlx::migrate!().run(&db).await.expect("Failed to run migrations");
+    db
+}
+```
+
+Run:
+```bash
+cargo test --test items_test
+```
+
+## Testing Next.js
+
+### Component Tests
+
+```typescript
+import { render, screen } from "@testing-library/react";
+import { ItemList } from "@/components/ItemList";
+
+global.fetch = jest.fn();
+
+describe("ItemList", () => {
+  it("displays items from API", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => [{ id: 1, name: "Item 1" }],
+    });
+
+    render(<ItemList />);
+
+    await screen.findByText("Item 1");
+    expect(screen.getByText("Item 1")).toBeInTheDocument();
+  });
+});
+```
+
+Run:
+```bash
+npm test
+```
+
+### User Interaction Tests
+
+```typescript
+import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+it("submits form", async () => {
+  render(<AddItemForm />);
+  
+  const input = screen.getByPlaceholderText("Item name");
+  await userEvent.type(input, "New item");
+  
+  await userEvent.click(screen.getByRole("button", { name: /add/i }));
+  
+  expect(global.fetch).toHaveBeenCalledWith(
+    expect.stringContaining("/api/items"),
+    expect.any(Object)
+  );
+});
+```
+
+## Testing Best Practices
+
+### Test Behavior, Not Implementation
+
+```typescript
+// ❌ Bad
+expect(mockFetch).toHaveBeenCalledWith("http://localhost:3001/api/items");
+
+// ✅ Good
+expect(screen.getByText("Item 1")).toBeInTheDocument();
+```
+
+### Use Fixtures
+
+```typescript
+// __tests__/fixtures/items.ts
+export const mockItems = [
+  { id: 1, name: "Item 1" },
+  { id: 2, name: "Item 2" },
+];
+
+export const mockFetch = jest.fn().mockResolvedValue({
+  ok: true,
+  json: async () => mockItems,
+});
+
+// In tests:
+global.fetch = mockFetch();
+```
+
+### Test Error Cases
+
+```typescript
+it("handles API errors", async () => {
+  global.fetch = jest.fn().mockRejectedValue(new Error("API error"));
+  render(<ItemList />);
+  
+  expect(screen.getByText(/error/i)).toBeInTheDocument();
+});
+```
+
+## CI/CD Integration
+
+### GitHub Actions (Rust)
+
+Create `.github/workflows/test.yml`:
+
+```yaml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cd api && cargo test
+```
+
+### GitHub Actions (Next.js)
+
+```yaml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: cd web && npm ci && npm test
+```
+
+## Coverage
+
+### Rust
+
+```bash
+cargo install cargo-tarpaulin
+cargo tarpaulin --out Html
+```
+
+### Next.js
+
+```bash
+npm test -- --coverage
+```
+
+## Learn More
+
+- [API Patterns](/docs/development/api-patterns) — Design testable APIs
+- [Your First Endpoint](/docs/first-steps) — Build code to test
+- [Deployment](/docs/deployment) — CI/CD runs tests automatically

@@ -1,0 +1,194 @@
+---
+title: Running Locally
+description: Start your scaffolded API and frontend together during development.
+---
+
+Everything you need to get your scaffolded project running on your machine.
+
+## Prerequisites Check
+
+Before you start, verify you have:
+
+```bash
+# Check Node.js (18+)
+node --version
+
+# Check Rust
+cargo --version
+
+# Check npm
+npm --version
+```
+
+## Setup Steps
+
+### Step 1: Navigate to your project
+
+```bash
+cd my-project
+# or
+cd my-api
+# or
+cd my-app
+```
+
+### Step 2: Set up environment files
+
+Copy the example environment files and customize them:
+
+```bash
+# For Rust API (if you have an API)
+cd api
+cp .env.example .env
+# Edit .env with your settings
+nano .env
+cd ..
+
+# For Next.js frontend
+cd web
+cp .env.example .env.local
+# Edit .env.local with your settings
+nano .env.local
+cd ..
+```
+
+## Running the API (Rust)
+
+### Terminal 1: Start the API
+
+```bash
+cd api
+cargo run
+```
+
+You should see:
+
+```
+   Compiling create-ruxum-app v0.1.0
+    Finished dev [unoptimized + debuginfo] target(s) in 2.34s
+     Running `target/debug/create-ruxum-app`
+2024-01-15T10:30:45.123Z  INFO create_ruxum_app: listening on 0.0.0.0:3001
+```
+
+### Verify it's working
+
+Open a new terminal and test the health endpoint:
+
+```bash
+curl http://localhost:3001/health
+```
+
+Expected response:
+
+```json
+{"status":"ok","version":"0.1.0"}
+```
+
+## Running the Frontend (Next.js)
+
+### Terminal 2: Install dependencies
+
+```bash
+cd web
+npm install
+```
+
+### Start the development server
+
+```bash
+npm run dev
+```
+
+You should see:
+
+```
+> dev
+> next dev
+
+  ▲ Next.js 14.0.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+✓ Ready in 2.1s
+```
+
+### Open in your browser
+
+Visit **[http://localhost:3000](http://localhost:3000)** and you should see the welcome page.
+
+## Both Running Together
+
+If you're running full-stack, you should have:
+
+**Terminal 1 (API running):**
+```
+listening on 0.0.0.0:3001
+```
+
+**Terminal 2 (Frontend running):**
+```
+Ready in 2.1s
+```
+
+Open your browser to `http://localhost:3000` and you can now:
+- View the frontend
+- Make API calls to `http://localhost:3001`
+
+## First API Call from Frontend
+
+Once both are running, you can make API calls from the frontend.
+
+Create `web/src/lib/api.ts`:
+
+```typescript
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export async function fetchHealth() {
+  const res = await fetch(`${API_URL}/health`);
+  if (!res.ok) throw new Error("Failed to fetch health");
+  return res.json();
+}
+```
+
+Use in `web/src/app/page.tsx`:
+
+```typescript
+"use client";
+import { useEffect, useState } from "react";
+import { fetchHealth } from "@/lib/api";
+
+export default function Home() {
+  const [health, setHealth] = useState<any>(null);
+
+  useEffect(() => {
+    fetchHealth().then(setHealth);
+  }, []);
+
+  return (
+    <div>
+      <h1>API Status</h1>
+      <pre>{JSON.stringify(health, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+## Stopping the servers
+
+Press `Ctrl+C` in each terminal to stop the services.
+
+## Restarting after changes
+
+**Rust:** Automatically recompiles when you save `.rs` files (restarts within a few seconds)  
+**Next.js:** Automatically reloads when you save `.tsx` or `.css` files (refresh your browser)
+
+## Debugging
+
+### Rust
+Add `dbg!()` or use logging:
+```rust
+tracing::debug!("Value: {:?}", my_value);
+```
+
+### Next.js
+Use browser DevTools (F12) to inspect network, console, and React state.
