@@ -1,0 +1,224 @@
+---
+title: Security Best Practices
+description: Essential security practices for your Rust API and Next.js frontend.
+---
+
+## Environment Variables & Secrets
+
+### ❌ Don't
+
+```rust
+// ❌ Hardcoded secrets
+const JWT_SECRET: &str = "super-secret-key";
+
+// ❌ Secrets in logs
+tracing::info!("JWT_SECRET: {}", secret);
+
+// ❌ Committing .env
+git add .env
+```
+
+### ✅ Do
+
+```rust
+// ✅ Load from environment
+let jwt_secret = std::env::var("JWT_SECRET")
+    .expect("JWT_SECRET must be set");
+
+// ✅ Never log secrets
+tracing::debug!("JWT configured");
+
+// ✅ Never commit .env
+echo ".env" >> .gitignore
+```
+
+## Authentication
+
+### JWT Security
+
+```rust
+pub struct Claims {
+    pub sub: String,
+    pub iat: i64,        // issued at
+    pub exp: i64,        // expires at (short lived!)
+}
+
+pub fn create_token(user_id: &str, secret: &str) -> Result<String> {
+    let now = chrono::Utc::now().timestamp();
+    let claims = Claims {
+        sub: user_id.to_string(),
+        iat: now,
+        exp: now + 3600, // 1 hour — keep short!
+    };
+    
+    encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))
+}
+
+// ✅ Validate on every request
+pub async fn require_auth(headers: HeaderMap) -> Result<Claims, AppError> {
+    let token = extract_bearer_token(&headers)?;
+    validate_token(&token, &config.jwt_secret)
+}
+```
+
+### NextAuth Security
+
+```typescript
+export const { auth, handlers } = NextAuth({
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        // ✅ Validate input
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials.email },
+        });
+        
+        if (!user) return null;
+        
+        // ✅ Use bcrypt to verify
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        if (!isValid) return null;
+        
+        return { id: user.id, email: user.email };
+      },
+    }),
+  ],
+  // ✅ Keep secret strong
+  secret: process.env.NEXTAUTH_SECRET,
+  // ✅ Use secure cookies in production
+  useSecureCookies: process.env.NODE_ENV === "production",
+});
+```
+
+## Input Validation
+
+### SQL Injection Prevention
+
+```rust
+// ❌ Never interpolate user input
+let results = sqlx::query(&format!(
+    "SELECT * FROM items WHERE name LIKE '{}'",
+    q.query  // ❌ SQL injection!
+))
+
+// ✅ Use parameterized queries
+let results = sqlx::query_as::<_, Item>(
+    "SELECT * FROM items WHERE name ILIKE $1"
+)
+.bind(format!("%{}%", q.query))  // Safe — $1 is parameterized
+.fetch_all(&db)
+```
+
+### Input Validation
+
+```rust
+#[derive(Deserialize)]
+pub struct CreateItemRequest {
+    #[validate(length(min = 1, max = 255))]
+    pub name: String,
+
+    #[validate(email)]
+    pub contact_email: String,
+
+    #[validate(range(min = 0.0))]
+    pub price: f64,
+}
+
+pub async fn create_item(
+    Json(req): Json<CreateItemRequest>,
+) -> Result<Json<ItemResponse>, AppError> {
+    req.validate()
+        .map_err(|e| AppError::BadRequest(e.to_string()))?;
+    
+    // Now safe to use req
+    todo!()
+}
+```
+
+## CORS Configuration
+
+### ❌ Don't
+
+```rust
+// ❌ Allow everything
+let cors = CorsLayer::permissive();
+```
+
+### ✅ Do
+
+```rust
+// ✅ Only allow your frontend
+let cors_origin = std::env::var("CORS_ORIGIN")
+    .unwrap_or_else(|_| "http://localhost:3000".to_string());
+
+let cors = CorsLayer::new()
+    .allow_origin(
+        cors_origin
+            .parse::<HeaderValue>()
+            .expect("Invalid CORS_ORIGIN")
+    )
+    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+    .allow_headers([CONTENT_TYPE, AUTHORIZATION])
+    .allow_credentials();
+```
+
+## Passwords
+
+### ❌ Don't
+
+```rust
+// ❌ Store plaintext
+sqlx::query("INSERT INTO users (password) VALUES ($1)")
+    .bind(password)  // ❌ Plaintext!
+
+// ❌ Use weak hashing (MD5, SHA1)
+let hash = md5::compute(password.as_bytes());
+```
+
+### ✅ Do
+
+```rust
+use bcrypt::{hash, verify, DEFAULT_COST};
+
+// ✅ Hash with bcrypt
+let hashed = hash(&req.password, DEFAULT_COST)?;
+sqlx::query("INSERT INTO users (password_hash) VALUES ($1)")
+    .bind(&hashed)
+    .execute(&db)
+    .await?;
+
+// ✅ Verify with bcrypt
+let valid = verify(&req.password, &user.password_hash)?;
+if !valid {
+    return Err(AppError::Unauthorized);
+}
+```
+
+## Security Checklist
+
+Before production:
+
+- [ ] All secrets in environment variables, not code
+- [ ] HTTPS enabled
+- [ ] CORS only allows your frontend domain
+- [ ] Passwords hashed with bcrypt
+- [ ] JWT tokens have short expiry (1 hour)
+- [ ] Rate limiting on login/API
+- [ ] Security headers set
+- [ ] SQL injection prevented (parameterized queries)
+- [ ] Input validation on all endpoints
+- [ ] Error messages don't leak sensitive info
+- [ ] Dependencies audited for vulnerabilities
+- [ ] `.env` in `.gitignore`
+- [ ] No secrets logged
+
+## Learn More
+
+- [API Patterns](/docs/development/api-patterns) — Secure endpoints
+- [Running Locally](/docs/getting-started/running-locally) — Setup with secrets
+- [Environment Variables](/docs/configuration) — Manage secrets safely
+- [Deployment](/docs/deployment) — Production setup

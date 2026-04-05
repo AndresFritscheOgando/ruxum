@@ -1,7 +1,10 @@
 # Source files
 src/
+*.astro
 *.ts
+*.tsx
 tsconfig.json
+astro.config.mjs
 
 # Development
 .git/
@@ -11,17 +14,12 @@ node_modules/
 .env.local
 
 # Build artifacts
+dist/
 *.tsbuildinfo
 
-# Testing
-__tests__/
-*.test.ts
-jest.config.js
-
 # Documentation
+DOCUMENTATION_GAPS.md
 docs/
-*.md
-CHANGELOG.md
 .github/
 
 # IDEs
@@ -35,12 +33,14 @@ CHANGELOG.md
 .DS_Store
 Thumbs.db
 
-# Build files (keep only dist)
-target/
-build/
-out/
-
 # Temporary
 temp/
 tmp/
 *.tmp
+
+# Scripts
+scripts/
+
+# Tests
+__tests__/
+*.test.ts

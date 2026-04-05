@@ -12,14 +12,37 @@ interface Props {
   currentSlug: string;
 }
 const { title, description, headings, currentSlug } = Astro.props;
+
+const slugParts = currentSlug.split('/').filter(Boolean);
+const breadcrumbItems = [
+  { name: 'Docs', url: 'https://ruxum.dev/docs/introduction' },
+  ...slugParts.map((part, i) => ({
+    name: part.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    url: `https://ruxum.dev/docs/${slugParts.slice(0, i + 1).join('/')}`,
+  })),
+];
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.name,
+    item: item.url,
+  })),
+};
 ---
 
 <BaseLayout
   title={`${title} — create-ruxum-app`}
   description={description}
+  ogType="article"
   noFooter={true}
   docsMode={true}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
   <div class="docs-shell">
     <Sidebar currentSlug={currentSlug} />
     <main class="docs-main" id="main-content">

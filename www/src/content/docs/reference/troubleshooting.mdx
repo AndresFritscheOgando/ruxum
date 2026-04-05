@@ -1,0 +1,194 @@
+---
+title: Troubleshooting
+description: Solutions to common problems when scaffolding or running your project.
+---
+
+## Installation & Setup
+
+### "command not found: cargo"
+
+**Cause:** Rust toolchain is not installed or not in your PATH.
+
+**Solution:**
+
+1. Install Rust from [rustup.rs](https://rustup.rs):
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+2. Reload your shell: `source $HOME/.cargo/env`
+
+3. Verify: `rustc --version && cargo --version`
+
+### "command not found: npm"
+
+**Cause:** Node.js is not installed or not in your PATH.
+
+**Solution:**
+
+1. Install Node.js 18+ from [nodejs.org](https://nodejs.org)
+2. Verify: `node --version` and `npm --version`
+
+## Scaffolding
+
+### "cargo check fails after scaffold"
+
+**Cause:** Usually a version mismatch or missing system dependencies.
+
+**Solution:**
+
+1. Update Rust: `rustup update`
+2. Try checking again: `cd api && cargo check`
+3. If SQLx errors appear, ensure your database exists and `DATABASE_URL` is correct in `.env`
+
+### "npm install fails or hangs"
+
+**Solution:**
+
+```bash
+cd web
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### "TypeScript errors in Next.js"
+
+**Solution:**
+
+1. Ensure dependencies are installed: `npm install`
+2. Check `.env.local` is set up
+3. Run `npx tsc --noEmit` to see detailed errors
+
+## Running the Project
+
+### "Port 3000 already in use"
+
+**Solution - Kill the process:**
+
+```bash
+# macOS/Linux
+lsof -i :3000
+kill -9 <PID>
+
+# Windows
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+```
+
+**Or use a different port:**
+
+```bash
+npm run dev -- -p 3001
+```
+
+### "Port 3001 already in use" (API)
+
+**Solution:**
+
+```bash
+# Kill process
+lsof -i :3001
+kill -9 <PID>
+
+# Or change port in api/.env
+BIND_ADDR=0.0.0.0:3002
+```
+
+## Database Connection
+
+### "Connection refused"
+
+**Cause:** Database isn't running or connection string is wrong.
+
+**Solution:**
+
+1. Check your `.env` file: `DATABASE_URL`
+2. Verify database is running:
+   ```bash
+   # PostgreSQL
+   brew services start postgresql
+   psql -U postgres -c "SELECT 1"
+   ```
+
+3. For SQLite, it creates the file automatically:
+   ```bash
+   DATABASE_URL=sqlite://dev.db
+   ```
+
+### "Query metadata not found" (SQLx error)
+
+**Cause:** SQLx requires the actual database to exist for compile-time checks.
+
+**Solution:**
+
+1. Create your database
+2. Set `DATABASE_URL` in `.env`
+3. Run migrations: `sqlx migrate run`
+4. Try again: `cargo check`
+
+## Frontend/API Integration
+
+### "CORS error" when frontend calls API
+
+**Solution:**
+
+The API is pre-configured for `http://localhost:3000`. If you changed ports:
+
+```bash
+# api/.env
+CORS_ORIGIN=http://localhost:3001
+```
+
+Then restart the API.
+
+### "Fetch fails or returns undefined"
+
+**Common mistakes:**
+
+```typescript
+// ❌ Wrong — not awaiting
+const res = fetch('/api/data');
+
+// ✅ Correct
+const res = await fetch('/api/data');
+const data = await res.json();
+```
+
+## Environment Variables
+
+### ".env not found" or missing variable
+
+**Solution:**
+
+```bash
+cd api && cp .env.example .env
+cd ../web && cp .env.example .env.local
+# Edit both files with your settings
+```
+
+### "NEXTAUTH_SECRET is required"
+
+**Solution:**
+
+Generate a secret:
+
+```bash
+# macOS/Linux
+openssl rand -base64 32
+```
+
+Add to `web/.env.local`:
+
+```bash
+NEXTAUTH_SECRET=<your-random-secret>
+NEXTAUTH_URL=http://localhost:3000
+```
+
+## Still Stuck?
+
+1. Check the error message carefully — it often contains the solution
+2. Verify your `.env` files are set up
+3. Restart both services
+4. Check the logs (run commands without redirection to see full output)
+5. Ask in [GitHub Discussions](https://github.com/AndresFritscheOgando/ruxum/discussions)

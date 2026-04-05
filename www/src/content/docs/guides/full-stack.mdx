@@ -1,0 +1,478 @@
+---
+title: Full-Stack Integration
+description: Connect your Rust API and Next.js frontend into a working application.
+---
+
+This guide explains how your API and frontend communicate, how they're organized together, and how to make them work as one cohesive full-stack application.
+
+## Architecture Overview
+
+Your Ruxum app is organized as a **monorepo** with two independent services:
+
+```
+create-ruxum-app/
+├── api/              # Rust Axum API
+│   ├── src/
+│   ├── Cargo.toml
+│   └── ...
+├── web/              # Next.js frontend
+│   ├── src/
+│   ├── package.json
+│   └── ...
+└── ...
+```
+
+They run on **different ports**:
+- API: `http://localhost:3001`
+- Frontend: `http://localhost:3000`
+
+## How They Communicate
+
+### Request Flow
+
+```
+Browser (Frontend)
+    ↓
+Next.js Client Component
+    ↓
+fetch() HTTP Request
+    ↓
+Rust API Handler
+    ↓
+Database Query
+    ↓
+Response JSON
+    ↓
+Frontend renders data
+```
+
+### Example: Fetching Items
+
+**Frontend (React):**
+```typescript
+const response = await fetch("http://localhost:3001/api/items");
+const data = await response.json(); // Rust API sends JSON
+```
+
+**API (Rust):**
+```rust
+pub async fn list_items() -> Json<Vec<Item>> {
+    // Fetch from database
+    let items = ...;
+    Json(items) // Automatically serialized to JSON
+}
+```
+
+## Environment Variables
+
+Your frontend needs to know **where** the API is. This is configured with `NEXT_PUBLIC_API_URL`:
+
+### Development
+
+Create `web/.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+Access in React:
+```typescript
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+fetch(`${API_URL}/api/items`);
+```
+
+### Production
+
+Set this in Railway (or your deployment platform):
+```
+NEXT_PUBLIC_API_URL=https://api.your-domain.com
+```
+
+## Running Both Services
+
+### Terminal 1: Start the API
+
+```bash
+cd api
+cargo run
+```
+
+Expected output:
+```
+Server listening on 0.0.0.0:3001
+```
+
+### Terminal 2: Start the Frontend
+
+```bash
+cd web
+npm run dev
+```
+
+Expected output:
+```
+▲ Next.js 15.x.x
+- Local: http://localhost:3000
+```
+
+### Verify Connection
+
+1. Open **http://localhost:3000** in your browser
+2. Open **Browser DevTools** (F12 → Console)
+3. Frontend should fetch from API without errors
+
+If you see CORS errors, see the [CORS Troubleshooting](#cors-troubleshooting) section.
+
+## Data Flow Example: Creating an Item
+
+This example shows the complete flow when a user submits a form.
+
+### Step 1: User Submits Form (Frontend)
+
+```typescript
+// web/src/components/AddItemForm.tsx
+const handleSubmit = async (e: React.FormEvent) => {
+  const response = await fetch(`${API_URL}/api/items`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "My Item" }),
+  });
+  
+  const newItem = await response.json();
+  setItems([...items, newItem]);
+};
+```
+
+### Step 2: API Receives Request (Rust)
+
+```rust
+// api/src/handlers/items.rs
+#[derive(Deserialize)]
+pub struct CreateItemRequest {
+    pub name: String,
+}
+
+pub async fn create_item(
+    Json(payload): Json<CreateItemRequest>,
+) -> Json<Item> {
+    // Insert into database
+    let item = Item {
+        id: generate_id(),
+        name: payload.name,
+        completed: false,
+    };
+    
+    // Return new item as JSON
+    Json(item)
+}
+```
+
+### Step 3: Frontend Updates UI
+
+The returned item is used to update local state:
+
+```typescript
+const newItem = await response.json();
+setItems([...items, newItem]); // Immediately shows in UI
+```
+
+## Monorepo Best Practices
+
+### Shared Types (Optional)
+
+You can share TypeScript types between API and frontend to avoid duplication:
+
+Create `types/items.ts`:
+```typescript
+export interface Item {
+  id: number;
+  name: string;
+  completed: boolean;
+}
+```
+
+Use in frontend:
+```typescript
+import { Item } from "../types/items";
+const [items, setItems] = useState<Item[]>([]);
+```
+
+Mirror in Rust:
+```rust
+#[derive(Serialize, Deserialize)]
+pub struct Item {
+    pub id: u32,
+    pub name: String,
+    pub completed: bool,
+}
+```
+
+### Environment Configuration
+
+Both services need configuration:
+
+**API (`api/.env`):**
+```
+DATABASE_URL=postgres://localhost/myapp
+LOG_LEVEL=debug
+```
+
+**Frontend (`web/.env.local`):**
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_ANALYTICS_ID=...
+```
+
+The `NEXT_PUBLIC_` prefix makes it available in the browser. Omit this prefix for secrets (like API keys).
+
+## CORS Configuration
+
+CORS (Cross-Origin Resource Sharing) is needed because:
+- Frontend runs on `localhost:3000`
+- API runs on `localhost:3001`
+- These are different origins
+
+### Development (Allow All)
+
+In your Rust API, use a CORS middleware:
+
+```rust
+use tower_http::cors::CorsLayer;
+
+let app = Router::new()
+    .route("/api/items", get(handlers::list_items))
+    .layer(CorsLayer::permissive()); // Allow all origins in dev
+```
+
+### Production (Specific Origin)
+
+```rust
+use tower_http::cors::CorsLayer;
+
+let cors = CorsLayer::very_restrictive()
+    .allow_origin("https://app.your-domain.com".parse()?);
+
+let app = Router::new()
+    .route("/api/items", get(handlers::list_items))
+    .layer(cors);
+```
+
+See [Security Guide](/docs/guides/security) for more CORS details.
+
+## Authentication Flow
+
+When using JWT authentication:
+
+### 1. User Logs In (Frontend)
+
+```typescript
+const response = await fetch(`${API_URL}/api/auth/login`, {
+  method: "POST",
+  body: JSON.stringify({ email, password }),
+});
+
+const { token } = await response.json();
+localStorage.setItem("token", token);
+```
+
+### 2. API Validates Credentials (Rust)
+
+```rust
+pub async fn login(
+    Json(req): Json<LoginRequest>,
+) -> Result<Json<LoginResponse>, AppError> {
+    let user = find_user_by_email(&req.email).await?;
+    
+    if !verify_password(&req.password, &user.password_hash)? {
+        return Err(AppError::Unauthorized("Invalid password".to_string()));
+    }
+    
+    let token = generate_jwt(&user)?;
+    Ok(Json(LoginResponse { token }))
+}
+```
+
+### 3. Subsequent Requests Include Token (Frontend)
+
+```typescript
+const token = localStorage.getItem("token");
+
+const response = await fetch(`${API_URL}/api/items`, {
+  headers: {
+    "Authorization": `Bearer ${token}`,
+  },
+});
+```
+
+### 4. API Verifies Token (Rust Middleware)
+
+```rust
+pub async fn auth_middleware(
+    headers: HeaderMap,
+    next: Next,
+) -> Result<impl IntoResponse, AppError> {
+    let token = headers
+        .get("Authorization")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|h| h.strip_prefix("Bearer "))
+        .ok_or(AppError::Unauthorized("Missing token".to_string()))?;
+    
+    verify_jwt(token)?;
+    Ok(next.run(request).await)
+}
+```
+
+## Testing the Integration
+
+### Manual Testing
+
+**Test GET:**
+```bash
+# Terminal 1: API running
+# Terminal 2: Frontend running
+
+# Terminal 3: Test API directly
+curl http://localhost:3001/api/items
+```
+
+**Test from Frontend:**
+Open browser → http://localhost:3000 → Open DevTools → Check Network tab for API calls
+
+### Automated Testing
+
+Test that frontend can reach API:
+
+```typescript
+// web/__tests__/integration/api.test.ts
+it("fetches items from API", async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/items`
+  );
+  expect(response.status).toBe(200);
+  
+  const data = await response.json();
+  expect(Array.isArray(data)).toBe(true);
+});
+```
+
+## Deployment: Running Both Together
+
+### Single Server (Railway)
+
+When you deploy both to Railway:
+
+1. **API Service** gets a public URL: `https://api-yourapp.up.railway.app`
+2. **Frontend Service** gets a public URL: `https://yourapp.up.railway.app`
+3. Set **Frontend Environment Variable:**
+   ```
+   NEXT_PUBLIC_API_URL=https://api-yourapp.up.railway.app
+   ```
+4. Frontend automatically calls the correct API URL
+
+See [Deploy to Railway](/docs/deployment/railway) for step-by-step instructions.
+
+### Separate Servers
+
+If API and frontend are on different domains:
+
+**Frontend deployed on Vercel:**
+```
+https://app.vercel.app
+```
+
+**API deployed on Railway:**
+```
+https://api.railway.app
+```
+
+Set environment variable on Vercel:
+```
+NEXT_PUBLIC_API_URL=https://api.railway.app
+```
+
+## Common Integration Issues
+
+### API Calls Return 404
+
+**Symptom:**
+```
+GET http://localhost:3001/api/items → 404 Not Found
+```
+
+**Causes:**
+1. API not running (check Terminal 1)
+2. Route not registered in `api/src/router.rs`
+3. Typo in endpoint path
+
+**Fix:**
+1. Verify API is running: `curl http://localhost:3001/health`
+2. Check route exists in router
+3. Verify path matches exactly (case-sensitive)
+
+### CORS Error
+
+**Symptom:**
+```
+Access to XMLHttpRequest at 'http://localhost:3001/api/items' 
+from origin 'http://localhost:3000' has been blocked by CORS policy
+```
+
+**Causes:**
+1. CORS middleware not configured in API
+2. Frontend origin not allowed in CORS config
+
+**Fix:**
+Add CORS middleware to API:
+```rust
+use tower_http::cors::CorsLayer;
+
+let app = Router::new()
+    .layer(CorsLayer::permissive())
+    .route(...)
+```
+
+### Wrong API URL
+
+**Symptom:**
+```
+TypeError: Failed to fetch
+```
+
+**Causes:**
+1. `NEXT_PUBLIC_API_URL` not set
+2. Points to wrong URL
+3. API not running at that URL
+
+**Fix:**
+```typescript
+// Log to debug
+console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+
+// Verify it's correct:
+fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/health`);
+```
+
+### Stale Frontend Cache
+
+**Symptom:**
+```
+Changes to API don't appear in frontend
+```
+
+**Causes:**
+1. Frontend is caching responses
+2. Frontend didn't restart after API changed
+3. Browser cache not cleared
+
+**Fix:**
+1. Hard refresh browser: `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
+2. Restart frontend: `cd web && npm run dev`
+3. Check Network tab in DevTools — is API returning new data?
+
+## Next Steps
+
+- **[Your First Endpoint](/docs/getting-started/your-first-endpoint)** — Build your API
+- **[Your First Component](/docs/getting-started/your-first-component)** — Build your frontend
+- **[API Patterns](/docs/development/api-patterns)** — Advanced API design
+- **[Frontend Patterns](/docs/guides/frontend-patterns)** — Advanced React patterns
+- **[Deploy to Railway](/docs/deployment/railway)** — Ship your app
+

@@ -1,0 +1,251 @@
+---
+title: API Patterns
+description: Best practices for building endpoints with Axum.
+---
+
+## Route Organization
+
+### Nested Routes (Recommended)
+
+```rust
+pub fn build(db: PgPool) -> Router {
+    let user_routes = Router::new()
+        .route("/", get(list_users))
+        .route("/:id", get(get_user))
+        .route("/", post(create_user));
+
+    let item_routes = Router::new()
+        .route("/", get(list_items))
+        .route("/:id", get(get_item))
+        .route("/", post(create_item));
+
+    Router::new()
+        .route("/health", get(health))
+        .nest("/users", user_routes)
+        .nest("/items", item_routes)
+        .with_state(db)
+}
+```
+
+## Request Patterns
+
+### JSON Body
+
+```rust
+#[derive(Deserialize)]
+pub struct CreateItemRequest {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+pub async fn create_item(
+    Json(req): Json<CreateItemRequest>,
+) -> Result<Json<ItemResponse>, AppError> {
+    // req.name is guaranteed to be String
+    todo!()
+}
+```
+
+### Path Parameters
+
+```rust
+pub async fn get_item(
+    Path(id): Path<u32>,
+) -> Result<Json<ItemResponse>, AppError> {
+    todo!()
+}
+```
+
+### Query Parameters
+
+```rust
+#[derive(Deserialize)]
+pub struct ListQuery {
+    pub skip: Option<u32>,
+    pub take: Option<u32>,
+}
+
+pub async fn list_items(
+    Query(q): Query<ListQuery>,
+) -> Result<Json<Vec<ItemResponse>>, AppError> {
+    let skip = q.skip.unwrap_or(0);
+    let take = q.take.unwrap_or(10).min(100);
+    todo!()
+}
+
+// Usage: /api/items?skip=10&take=20
+```
+
+## Error Handling
+
+Always return typed errors that convert to HTTP responses:
+
+```rust
+pub enum AppError {
+    NotFound(String),
+    Unauthorized,
+    BadRequest(String),
+    Internal(String),
+}
+
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        let (status, message) = match self {
+            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
+            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".into()),
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+            AppError::Internal(err) => (StatusCode::INTERNAL_SERVER_ERROR, err),
+        };
+        (status, Json(json!({ "error": message }))).into_response()
+    }
+}
+```
+
+Usage:
+
+```rust
+pub async fn get_item(
+    Path(id): Path<u32>,
+) -> Result<Json<ItemResponse>, AppError> {
+    if id == 0 {
+        return Err(AppError::BadRequest("ID cannot be 0".into()));
+    }
+
+    let item = find_item(id)
+        .ok_or_else(|| AppError::NotFound("Item not found".into()))?;
+
+    Ok(Json(item))
+}
+```
+
+## Validation
+
+### Serde Validation
+
+Serde automatically validates types:
+
+```rust
+#[derive(Deserialize)]
+pub struct CreateItemRequest {
+    pub name: String,  // Guaranteed to be String or 400 Bad Request
+    pub price: f64,    // Guaranteed to be number or 400 Bad Request
+}
+```
+
+### Custom Validation
+
+```rust
+#[derive(Deserialize)]
+pub struct CreateItemRequest {
+    pub name: String,
+    pub email: String,
+}
+
+impl CreateItemRequest {
+    pub fn validate(&self) -> Result<(), AppError> {
+        if self.name.is_empty() || self.name.len() > 255 {
+            return Err(AppError::BadRequest("Name must be 1-255 chars".into()));
+        }
+        if !self.email.contains('@') {
+            return Err(AppError::BadRequest("Invalid email".into()));
+        }
+        Ok(())
+    }
+}
+
+pub async fn create_item(
+    Json(req): Json<CreateItemRequest>,
+) -> Result<Json<ItemResponse>, AppError> {
+    req.validate()?;
+    todo!()
+}
+```
+
+## Pagination
+
+```rust
+#[derive(Deserialize)]
+pub struct PaginationQuery {
+    pub skip: u32,
+    pub take: u32,
+}
+
+pub async fn list_items(
+    State(db): State<PgPool>,
+    Query(q): Query<PaginationQuery>,
+) -> Result<Json<Vec<ItemResponse>>, AppError> {
+    let skip = q.skip.min(1_000_000);
+    let take = q.take.max(1).min(100); // Clamp between 1-100
+
+    let items = sqlx::query_as::<_, ItemResponse>(
+        "SELECT * FROM items LIMIT $1 OFFSET $2"
+    )
+    .bind(take)
+    .bind(skip)
+    .fetch_all(&db)
+    .await?;
+
+    Ok(Json(items))
+}
+```
+
+## Soft Deletes
+
+Instead of deleting, mark as deleted:
+
+```rust
+pub async fn delete_item(
+    State(db): State<PgPool>,
+    Path(id): Path<u32>,
+) -> Result<StatusCode, AppError> {
+    sqlx::query(
+        "UPDATE items SET deleted_at = NOW() WHERE id = $1"
+    )
+    .bind(id)
+    .execute(&db)
+    .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn list_items(
+    State(db): State<PgPool>,
+) -> Result<Json<Vec<ItemResponse>>, AppError> {
+    let items = sqlx::query_as::<_, ItemResponse>(
+        "SELECT * FROM items WHERE deleted_at IS NULL"
+    )
+    .fetch_all(&db)
+    .await?;
+
+    Ok(Json(items))
+}
+```
+
+## Middleware
+
+### Logging
+
+```rust
+use tower_http::trace::TraceLayer;
+
+Router::new()
+    .route("/items", get(list_items))
+    .layer(TraceLayer::new_for_http())
+```
+
+### Authentication
+
+```rust
+pub async fn protected_route(
+    AuthUser(claims): AuthUser,
+) -> String {
+    format!("Hello, {}", claims.sub)
+}
+```
+
+## Learn More
+
+- [Axum Documentation](https://github.com/tokio-rs/axum)
+- [Your First Endpoint](/docs/first-steps) — Step-by-step tutorial
+- [Testing Guide](/docs/development/testing) — Test your endpoints
+- [Security](/docs/guides/security) — Secure API patterns

@@ -1,0 +1,637 @@
+---
+title: Frontend Patterns
+description: React and Next.js patterns for building scalable frontends.
+---
+
+This guide covers common React patterns used in Ruxum apps to help you build better components, manage state effectively, and avoid common pitfalls.
+
+## Server vs Client Components
+
+Next.js 13+ distinguishes between **Server Components** and **Client Components**.
+
+### Server Components (Default)
+
+By default, components run on the server:
+
+```typescript
+// app/page.tsx — runs on SERVER
+export default async function Page() {
+  const items = await fetch("http://localhost:3001/api/items")
+    .then(r => r.json());
+
+  return <div>{items.length} items</div>;
+}
+```
+
+**Benefits:**
+- Direct database access (no API call needed)
+- Keep secrets on server (API keys don't leak to browser)
+- Smaller JavaScript bundle
+- SEO-friendly
+
+**Limitations:**
+- No browser APIs (no `window`, `document`, `localStorage`)
+- No event handlers (`onClick`, `onChange`)
+- No hooks (`useState`, `useEffect`)
+
+### Client Components
+
+Mark with `"use client"` to run in the browser:
+
+```typescript
+// components/ItemList.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function ItemList() {
+  const [items, setItems] = useState([]);
+  
+  useEffect(() => {
+    fetch("/api/items")
+      .then(r => r.json())
+      .then(setItems);
+  }, []);
+
+  return <div>{items.length} items</div>;
+}
+```
+
+**Benefits:**
+- Can use `useState`, `useEffect`, other hooks
+- Can use event handlers and browser APIs
+- Real-time interactions
+
+**Limitations:**
+- Sent to browser (larger bundle)
+- Can't directly access backend secrets
+
+### When to Use Each
+
+| Need | Server Component | Client Component |
+|------|------------------|------------------|
+| Fetch data | ✅ | ❌ (use API instead) |
+| Display static data | ✅ | ❌ |
+| Use hooks | ❌ | ✅ |
+| Handle events | ❌ | ✅ |
+| Access localStorage | ❌ | ✅ |
+| Keep secrets safe | ✅ | ❌ |
+
+**Pattern:** Server Component fetches data, passes to Client Component for interactivity:
+
+```typescript
+// app/page.tsx — Server Component
+export default async function Page() {
+  const items = await fetch("http://localhost:3001/api/items")
+    .then(r => r.json());
+
+  return <ItemList initialItems={items} />;
+}
+
+// components/ItemList.tsx — Client Component
+"use client";
+
+export function ItemList({ initialItems }) {
+  const [items, setItems] = useState(initialItems);
+  
+  const handleDelete = async (id) => {
+    await fetch(`/api/items/${id}`, { method: "DELETE" });
+    setItems(items.filter(i => i.id !== id));
+  };
+
+  return (
+    <div>
+      {items.map(item => (
+        <div key={item.id}>
+          {item.name}
+          <button onClick={() => handleDelete(item.id)}>Delete</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## State Management Patterns
+
+### Local State with useState
+
+For component-level state:
+
+```typescript
+"use client";
+
+export function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+```
+
+**Good for:**
+- Single component's local state
+- Form inputs
+- UI toggles
+
+### Lifting State Up
+
+Share state between sibling components:
+
+```typescript
+"use client";
+
+export function Parent() {
+  const [items, setItems] = useState([]);
+
+  return (
+    <div>
+      <AddItemForm onAdd={(item) => setItems([...items, item])} />
+      <ItemList items={items} />
+    </div>
+  );
+}
+```
+
+**Good for:**
+- Small trees of components
+- Simple data flow
+
+### Context for Deep Trees
+
+Use `useContext` to avoid prop drilling:
+
+```typescript
+"use client";
+
+import { createContext, useContext, useState } from "react";
+
+// Create context
+const ItemsContext = createContext();
+
+export function ItemsProvider({ children }) {
+  const [items, setItems] = useState([]);
+
+  return (
+    <ItemsContext.Provider value={{ items, setItems }}>
+      {children}
+    </ItemsContext.Provider>
+  );
+}
+
+// Use anywhere in tree
+export function useItems() {
+  return useContext(ItemsContext);
+}
+```
+
+Usage in component:
+
+```typescript
+"use client";
+
+import { useItems } from "@/context/ItemsContext";
+
+export function ItemList() {
+  const { items } = useItems();
+  return <div>{items.map(i => <div key={i.id}>{i.name}</div>)}</div>;
+}
+```
+
+**Good for:**
+- Shared state (user auth, theme, etc.)
+- Avoiding prop drilling
+- Medium-sized apps
+
+### API State Management
+
+Avoid managing API state manually. Use a data fetching library:
+
+```typescript
+// ❌ Manual (tedious)
+const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+
+useEffect(() => {
+  fetch("/api/items")
+    .then(r => r.json())
+    .then(d => { setData(d); setLoading(false); })
+    .catch(e => { setError(e); setLoading(false); });
+}, []);
+```
+
+**✅ Better: Use a library**
+
+Popular options:
+- **React Query** (TanStack Query) — Best for complex queries
+- **SWR** — Lightweight, built by Vercel
+- **Fetch wrapper** — Custom solution for simple apps
+
+Simple SWR example:
+
+```typescript
+"use client";
+
+import useSWR from "swr";
+
+export function ItemList() {
+  const { data: items, error, isLoading } = useSWR("/api/items");
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading items</div>;
+
+  return <div>{items.map(i => <div key={i.id}>{i.name}</div>)}</div>;
+}
+```
+
+## Hook Patterns
+
+### useEffect Dependency Array
+
+**Fetch on mount only** (empty array):
+
+```typescript
+useEffect(() => {
+  fetch("/api/items").then(r => r.json()).then(setItems);
+}, []); // Only runs once
+```
+
+**Refetch when dependency changes:**
+
+```typescript
+const [userId, setUserId] = useState(1);
+
+useEffect(() => {
+  fetch(`/api/users/${userId}`).then(...);
+}, [userId]); // Runs when userId changes
+```
+
+**Cleanup effect** (e.g., unsubscribe):
+
+```typescript
+useEffect(() => {
+  const listener = () => console.log("resize");
+  window.addEventListener("resize", listener);
+
+  return () => {
+    window.removeEventListener("resize", listener); // Cleanup
+  };
+}, []);
+```
+
+### Custom Hooks
+
+Extract reusable logic:
+
+```typescript
+// hooks/useFetch.ts
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch(url)
+      .then(r => r.json())
+      .then(setData)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+// Use it
+export function ItemList() {
+  const { data: items, loading, error } = useFetch("/api/items");
+  if (loading) return <div>Loading...</div>;
+  return <div>{items?.map(i => <div key={i.id}>{i.name}</div>)}</div>;
+}
+```
+
+### useMemo for Expensive Calculations
+
+```typescript
+"use client";
+
+import { useMemo } from "react";
+
+export function List({ items }) {
+  // Only recalculates when items change
+  const sorted = useMemo(
+    () => items.sort((a, b) => a.name.localeCompare(b.name)),
+    [items]
+  );
+
+  return <div>{sorted.map(i => <div key={i.id}>{i.name}</div>)}</div>;
+}
+```
+
+### useCallback for Stable Function References
+
+```typescript
+"use client";
+
+import { useCallback } from "react";
+
+export function Parent() {
+  const [items, setItems] = useState([]);
+
+  // Without useCallback: new function every render → child re-renders unnecessarily
+  // With useCallback: same function reference → child doesn't re-render
+  const handleDelete = useCallback(async (id) => {
+    await fetch(`/api/items/${id}`, { method: "DELETE" });
+    setItems(items.filter(i => i.id !== id));
+  }, [items]);
+
+  return <ItemList items={items} onDelete={handleDelete} />;
+}
+```
+
+## Form Patterns
+
+### Uncontrolled Form (Simple)
+
+```typescript
+"use client";
+
+export function AddItemForm({ onAdd }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const name = e.target.elements.name.value;
+    onAdd({ name });
+    e.target.reset();
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" placeholder="Item name" required />
+      <button type="submit">Add</button>
+    </form>
+  );
+}
+```
+
+**Good for:** Simple, one-off forms
+
+### Controlled Form (Complex)
+
+```typescript
+"use client";
+
+import { useState } from "react";
+
+export function AddItemForm({ onAdd }) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      setError("Name is required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add item");
+      const newItem = await response.json();
+      onAdd(newItem);
+      setName("");
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Item name"
+        disabled={loading}
+      />
+      <button type="submit" disabled={loading || !name}>
+        {loading ? "Adding..." : "Add"}
+      </button>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+    </form>
+  );
+}
+```
+
+**Good for:** Complex forms with validation, loading states, error handling
+
+### Form Libraries
+
+For large forms, use a library:
+
+```typescript
+import { useForm } from "react-hook-form";
+
+export function RegisterForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onSubmit = async (data) => {
+    await fetch("/api/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register("email", { required: true })} />
+      {errors.email && <span>Email is required</span>}
+      <button type="submit">Register</button>
+    </form>
+  );
+}
+```
+
+Popular form libraries:
+- **React Hook Form** — Lightweight, performant
+- **Formik** — Feature-rich
+- **Zod** — TypeScript-first validation
+
+## Error Handling Patterns
+
+### Try-Catch with Error Display
+
+```typescript
+"use client";
+
+import { useState } from "react";
+
+export function ItemList() {
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState(null);
+
+  const loadItems = async () => {
+    try {
+      const response = await fetch("/api/items");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setItems(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+  return <div>{items.map(i => <div key={i.id}>{i.name}</div>)}</div>;
+}
+```
+
+### Error Boundary
+
+Catch errors in entire tree:
+
+```typescript
+"use client";
+
+import { ReactNode, useState, useEffect } from "react";
+
+export function ErrorBoundary({ children }: { children: ReactNode }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setHasError(true);
+    window.addEventListener("error", handler);
+    return () => window.removeEventListener("error", handler);
+  }, []);
+
+  if (hasError) {
+    return <div>Something went wrong</div>;
+  }
+
+  return children;
+}
+
+// Usage
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <ItemList />
+    </ErrorBoundary>
+  );
+}
+```
+
+## Performance Optimization
+
+### Code Splitting with Dynamic Imports
+
+```typescript
+import dynamic from "next/dynamic";
+
+// Load component only when needed
+const HeavyComponent = dynamic(() => import("@/components/Heavy"));
+
+export function App() {
+  return <HeavyComponent />;
+}
+```
+
+### Image Optimization
+
+```typescript
+import Image from "next/image";
+
+export function Avatar({ src }) {
+  return (
+    <Image
+      src={src}
+      alt="Avatar"
+      width={100}
+      height={100}
+      priority // Load immediately (only for above-fold images)
+    />
+  );
+}
+```
+
+### Memoization to Prevent Re-renders
+
+```typescript
+import { memo } from "react";
+
+// Only re-render if props change
+const ItemCard = memo(function ItemCard({ item, onDelete }) {
+  return (
+    <div>
+      {item.name}
+      <button onClick={() => onDelete(item.id)}>Delete</button>
+    </div>
+  );
+});
+```
+
+## Testing Patterns
+
+### Component Test with Mock API
+
+```typescript
+import { render, screen } from "@testing-library/react";
+import { ItemList } from "@/components/ItemList";
+
+describe("ItemList", () => {
+  it("displays items from API", async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([{ id: 1, name: "Item 1" }]),
+      })
+    );
+
+    render(<ItemList />);
+    expect(await screen.findByText("Item 1")).toBeInTheDocument();
+  });
+});
+```
+
+### User Interaction Test
+
+```typescript
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { AddItemForm } from "@/components/AddItemForm";
+
+it("submits form with item name", async () => {
+  const onAdd = jest.fn();
+  render(<AddItemForm onAdd={onAdd} />);
+
+  const input = screen.getByPlaceholderText("Item name");
+  await userEvent.type(input, "New Item");
+  await userEvent.click(screen.getByRole("button", { name: /add/i }));
+
+  expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ name: "New Item" }));
+});
+```
+
+## Next Steps
+
+- **[Your First Component](/docs/getting-started/your-first-component)** — Build components
+- **[Full-Stack Integration](/docs/guides/full-stack)** — Connect to your API
+- **[API Patterns](/docs/development/api-patterns)** — Design better endpoints
+- **[Testing](/docs/development/testing)** — Test your components
+

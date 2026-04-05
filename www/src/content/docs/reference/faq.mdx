@@ -1,0 +1,144 @@
+---
+title: FAQ
+description: Common questions about create-ruxum-app answered.
+---
+
+## Installation & Setup
+
+### What versions of Node.js and Rust do I need?
+
+- **Node.js:** 18.0.0 or higher
+- **Rust:** Latest stable (via [rustup.rs](https://rustup.rs))
+
+### Can I use an older Node.js version?
+
+No. The scaffolded Next.js requires 18+. Upgrade with:
+```bash
+brew install node  # macOS
+# or use nvm install 18 && nvm use 18
+```
+
+## Project Setup
+
+### Can I change the project name after scaffolding?
+
+Yes, manually. Edit `Cargo.toml` (Rust) and `package.json` (Next.js) with the new name.
+
+### Can I add features after scaffolding?
+
+Absolutely. You own the code. Add any package:
+```bash
+cd api && cargo add some-crate
+cd web && npm install react-query
+```
+
+### Can I switch from Prisma to Drizzle?
+
+Yes, manually:
+1. Uninstall Prisma: `npm uninstall prisma @prisma/client`
+2. Install Drizzle: `npm install drizzle-orm drizzle-kit`
+3. Copy schema setup from Drizzle docs
+4. Update `src/lib/db.ts`
+
+## Development
+
+### Why is my Rust code compiling slowly?
+
+Rust compilation is slow. For faster iteration:
+- Use debug mode (default): `cargo run` — fast to compile
+- Only use release for production: `cargo build --release`
+
+### How do I debug my frontend?
+
+Use browser DevTools (F12) and React DevTools extension.
+
+### How do I debug my API?
+
+Use logging:
+```rust
+tracing::debug!("Value: {:?}", my_var);
+```
+
+## API & Frontend
+
+### How do I call the API from the frontend?
+
+```typescript
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const response = await fetch(`${API_URL}/api/items`);
+const data = await response.json();
+```
+
+### How do I pass authentication tokens?
+
+```typescript
+const session = await auth();
+const response = await fetch(`${API_URL}/api/protected`, {
+  headers: {
+    Authorization: `Bearer ${session.accessToken}`,
+  },
+});
+```
+
+### How do I add a new database field?
+
+**Prisma:**
+1. Edit `prisma/schema.prisma`
+2. Run: `npx prisma migrate dev --name add_field`
+
+**SQLx:**
+1. Create migration: `sqlx migrate add add_field`
+2. Edit the SQL file
+3. Run: `sqlx migrate run`
+
+## Deployment
+
+### How much does it cost to host?
+
+Railway offers $5/month free tier, which usually covers hobby projects. Production typically costs $20-100+/month depending on usage.
+
+### Can I deploy just the frontend?
+
+Yes, to Vercel or Netlify. You still need an API hosted somewhere else.
+
+### Can I deploy just the API?
+
+Yes, to Railway, Fly.io, AWS, or any Rust-capable host. The frontend can call it from anywhere.
+
+## Customization
+
+### Can I use a different database?
+
+Yes, if it has SQLx/SeaORM/Prisma/Drizzle support:
+- PostgreSQL ✅
+- MySQL ✅
+- SQLite ✅
+- MongoDB (Prisma only, basic support)
+
+### Can I use a different auth system?
+
+Yes, replace NextAuth.js or JWT with OAuth, magic links, passkeys, etc.
+
+### Can I use a different UI library?
+
+Yes. Tailwind and shadcn/ui are optional. Use CSS Modules, Styled Components, Bootstrap, etc.
+
+### Can I use GraphQL instead of REST?
+
+Yes, but you'll implement it manually using libraries like `async-graphql`.
+
+## Version Compatibility
+
+| Component | Minimum | Recommended |
+|---|---|---|
+| Node.js | 18.0.0 | Latest LTS |
+| Rust | stable | Latest stable |
+| Next.js | 14.0.0 | Latest |
+| Axum | 0.7 | Latest |
+
+## What's Next?
+
+- **[Getting Started](/docs/installation)** — Install and scaffold
+- **[Running Locally](/docs/getting-started/running-locally)** — Get your app running
+- **[Your First Feature](/docs/first-steps)** — Build something real
+- **[Deployment](/docs/deployment)** — Ship to production

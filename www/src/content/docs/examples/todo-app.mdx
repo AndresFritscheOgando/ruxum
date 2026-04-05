@@ -1,0 +1,649 @@
+---
+title: Todo App Example
+description: Build a complete todo application with CRUD operations.
+---
+
+This guide walks you through building a complete, working todo app. You'll implement all CRUD operations (Create, Read, Update, Delete) and learn full-stack patterns in the process.
+
+**Time to build:** 60 minutes  
+**What you'll learn:** API endpoints, React components, state management, form handling, error handling
+
+## What You'll Build
+
+A todo app with:
+- ✅ List all todos
+- ✅ Create new todos
+- ✅ Mark todos as complete/incomplete
+- ✅ Delete todos
+- ✅ Real-time UI updates
+
+## Architecture
+
+```
+[React Component] ↔ [Rust API] ↔ [Database]
+
+ItemList.tsx        list_items()    SELECT * FROM todos
+AddItemForm.tsx     create_item()   INSERT INTO todos
+ItemCard.tsx        update_item()   UPDATE todos SET completed
+                    delete_item()   DELETE FROM todos
+```
+
+## Part 1: Create the API Endpoints
+
+### Step 1.1: Define the Models
+
+Create `api/src/models.rs`:
+
+```rust
+use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
+
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+pub struct Todo {
+    pub id: i32,
+    pub title: String,
+    pub completed: bool,
+}
+
+#[derive(Deserialize)]
+pub struct CreateTodoRequest {
+    pub title: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateTodoRequest {
+    pub title: Option<String>,
+    pub completed: Option<bool>,
+}
+```
+
+Update `api/src/main.rs`:
+
+```rust
+mod models;
+```
+
+### Step 1.2: Create Handlers
+
+Create `api/src/handlers/todos.rs`:
+
+```rust
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
+use sqlx::SqlitePool;
+use crate::models::{Todo, CreateTodoRequest, UpdateTodoRequest};
+
+// GET /api/todos
+pub async fn list_todos(
+    State(db): State<SqlitePool>,
+) -> Result<Json<Vec<Todo>>, String> {
+    let todos = sqlx::query_as::<_, Todo>(
+        "SELECT id, title, completed FROM todos ORDER BY id DESC"
+    )
+    .fetch_all(&db)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(Json(todos))
+}
+
+// POST /api/todos
+pub async fn create_todo(
+    State(db): State<SqlitePool>,
+    Json(req): Json<CreateTodoRequest>,
+) -> Result<(StatusCode, Json<Todo>), String> {
+    if req.title.trim().is_empty() {
+        return Err("Title cannot be empty".to_string());
+    }
+
+    let todo = sqlx::query_as::<_, Todo>(
+        "INSERT INTO todos (title, completed) VALUES (?, false) 
+         RETURNING id, title, completed"
+    )
+    .bind(&req.title)
+    .fetch_one(&db)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok((StatusCode::CREATED, Json(todo)))
+}
+
+// GET /api/todos/:id
+pub async fn get_todo(
+    State(db): State<SqlitePool>,
+    Path(id): Path<i32>,
+) -> Result<Json<Todo>, String> {
+    let todo = sqlx::query_as::<_, Todo>(
+        "SELECT id, title, completed FROM todos WHERE id = ?"
+    )
+    .bind(id)
+    .fetch_one(&db)
+    .await
+    .map_err(|_| "Todo not found".to_string())?;
+
+    Ok(Json(todo))
+}
+
+// PATCH /api/todos/:id
+pub async fn update_todo(
+    State(db): State<SqlitePool>,
+    Path(id): Path<i32>,
+    Json(req): Json<UpdateTodoRequest>,
+) -> Result<Json<Todo>, String> {
+    // Get current todo
+    let current = sqlx::query_as::<_, Todo>(
+        "SELECT id, title, completed FROM todos WHERE id = ?"
+    )
+    .bind(id)
+    .fetch_one(&db)
+    .await
+    .map_err(|_| "Todo not found".to_string())?;
+
+    let title = req.title.unwrap_or(current.title);
+    let completed = req.completed.unwrap_or(current.completed);
+
+    let todo = sqlx::query_as::<_, Todo>(
+        "UPDATE todos SET title = ?, completed = ? WHERE id = ? 
+         RETURNING id, title, completed"
+    )
+    .bind(title)
+    .bind(completed)
+    .bind(id)
+    .fetch_one(&db)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(Json(todo))
+}
+
+// DELETE /api/todos/:id
+pub async fn delete_todo(
+    State(db): State<SqlitePool>,
+    Path(id): Path<i32>,
+) -> Result<StatusCode, String> {
+    sqlx::query("DELETE FROM todos WHERE id = ?")
+        .bind(id)
+        .execute(&db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+```
+
+Update `api/src/handlers/mod.rs`:
+
+```rust
+pub mod todos;
+pub mod health;
+
+pub use todos::*;
+pub use health::*;
+```
+
+### Step 1.3: Register Routes
+
+Update `api/src/router.rs`:
+
+```rust
+use axum::{
+    routing::{get, post, patch, delete},
+    Router,
+};
+use sqlx::SqlitePool;
+use crate::handlers;
+
+pub fn build(db: SqlitePool) -> Router {
+    Router::new()
+        .route("/health", get(handlers::health))
+        .route("/api/todos", get(handlers::list_todos))
+        .route("/api/todos", post(handlers::create_todo))
+        .route("/api/todos/:id", get(handlers::get_todo))
+        .route("/api/todos/:id", patch(handlers::update_todo))
+        .route("/api/todos/:id", delete(handlers::delete_todo))
+        .with_state(db)
+}
+```
+
+### Step 1.4: Create Database Schema
+
+Create `api/migrations/001_create_todos.sql`:
+
+```sql
+CREATE TABLE IF NOT EXISTS todos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    completed BOOLEAN NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Part 2: Create the Frontend Components
+
+### Step 2.1: Create the Todo Card Component
+
+Create `web/src/components/TodoCard.tsx`:
+
+```typescript
+"use client";
+
+import { useState } from "react";
+
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+interface TodoCardProps {
+  todo: Todo;
+  onToggle: (id: number, completed: boolean) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
+export function TodoCard({ todo, onToggle, onDelete }: TodoCardProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      await onToggle(todo.id, !todo.completed);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this todo?")) return;
+    
+    setLoading(true);
+    try {
+      await onDelete(todo.id);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3 p-3 border rounded hover:bg-gray-50">
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={handleToggle}
+        disabled={loading}
+        className="w-5 h-5"
+      />
+      <span
+        className={`flex-1 ${
+          todo.completed ? "line-through text-gray-500" : ""
+        }`}
+      >
+        {todo.title}
+      </span>
+      <button
+        onClick={handleDelete}
+        disabled={loading}
+        className="px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded"
+      >
+        Delete
+      </button>
+    </div>
+  );
+}
+```
+
+### Step 2.2: Create the Add Todo Form
+
+Create `web/src/components/AddTodoForm.tsx`:
+
+```typescript
+"use client";
+
+import { useState } from "react";
+
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+interface AddTodoFormProps {
+  onAdd: (todo: Todo) => void;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export function AddTodoForm({ onAdd }: AddTodoFormProps) {
+  const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title.trim()) {
+      setError("Please enter a title");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/api/todos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create todo");
+      }
+
+      const newTodo = await response.json();
+      setTitle("");
+      onAdd(newTodo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Add a new todo..."
+        disabled={loading}
+        className="flex-1 px-4 py-2 border rounded"
+      />
+      <button
+        type="submit"
+        disabled={loading || !title.trim()}
+        className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+      >
+        {loading ? "Adding..." : "Add"}
+      </button>
+      {error && <div className="text-red-500 text-sm">{error}</div>}
+    </form>
+  );
+}
+```
+
+### Step 2.3: Create the Todo List
+
+Create `web/src/components/TodoList.tsx`:
+
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+import { TodoCard } from "./TodoCard";
+import { AddTodoForm } from "./AddTodoForm";
+
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export function TodoList() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/todos`);
+        if (!response.ok) throw new Error("Failed to fetch todos");
+        const data = await response.json();
+        setTodos(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTodos();
+  }, []);
+
+  const handleToggle = async (id: number, completed: boolean) => {
+    try {
+      const response = await fetch(`${API_URL}/api/todos/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update todo");
+      const updated = await response.json();
+      setTodos(todos.map(t => t.id === id ? updated : t));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`${API_URL}/api/todos/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete todo");
+      setTodos(todos.filter(t => t.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    }
+  };
+
+  const handleAdd = (newTodo: Todo) => {
+    setTodos([newTodo, ...todos]);
+  };
+
+  if (loading) return <div className="text-center py-4">Loading todos...</div>;
+
+  const completedCount = todos.filter(t => t.completed).length;
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">My Todos</h1>
+        <p className="text-gray-600">
+          {completedCount} of {todos.length} completed
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+          Error: {error}
+        </div>
+      )}
+
+      <AddTodoForm onAdd={handleAdd} />
+
+      {todos.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>No todos yet. Create one to get started!</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {todos.map((todo) => (
+            <TodoCard
+              key={todo.id}
+              todo={todo}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Step 2.4: Use in Your Page
+
+Update `web/src/app/page.tsx`:
+
+```typescript
+import { TodoList } from "@/components/TodoList";
+
+export default function Home() {
+  return <TodoList />;
+}
+```
+
+## Part 3: Test the App
+
+### Start the API
+
+```bash
+cd api
+cargo run
+```
+
+Expected output:
+```
+Server listening on 0.0.0.0:3001
+```
+
+### Start the Frontend
+
+```bash
+cd web
+npm run dev
+```
+
+Expected output:
+```
+▲ Next.js 15.x.x
+- Local: http://localhost:3000
+```
+
+### Test Features
+
+1. **Visit http://localhost:3000**
+2. **Add a todo** — Type in the input and click "Add"
+3. **Complete a todo** — Click the checkbox
+4. **Delete a todo** — Click "Delete"
+5. **Check API** — Open DevTools (F12) → Network tab → See requests to `/api/todos`
+
+## Part 4: Enhance with Filters (Optional)
+
+Add the ability to filter by status:
+
+```typescript
+"use client";
+
+export function TodoList() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  
+  // ... existing code ...
+
+  const filteredTodos = todos.filter((t) => {
+    if (filter === "active") return !t.completed;
+    if (filter === "completed") return t.completed;
+    return true;
+  });
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      {/* ... existing code ... */}
+
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setFilter("all")}
+          className={`px-4 py-2 rounded ${filter === "all" ? "bg-blue-500 text-white" : "border"}`}
+        >
+          All ({todos.length})
+        </button>
+        <button
+          onClick={() => setFilter("active")}
+          className={`px-4 py-2 rounded ${filter === "active" ? "bg-blue-500 text-white" : "border"}`}
+        >
+          Active ({todos.filter(t => !t.completed).length})
+        </button>
+        <button
+          onClick={() => setFilter("completed")}
+          className={`px-4 py-2 rounded ${filter === "completed" ? "bg-blue-500 text-white" : "border"}`}
+        >
+          Completed ({todos.filter(t => t.completed).length})
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        {filteredTodos.map((todo) => (
+          <TodoCard key={todo.id} todo={todo} onToggle={handleToggle} onDelete={handleDelete} />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+## Key Concepts Demonstrated
+
+| Concept | Where Used | Why Important |
+|---------|-----------|----------------|
+| **API Endpoints** | `api/src/handlers/todos.rs` | CRUD operations on backend |
+| **State Management** | `TodoList.tsx` with `useState` | Track todos in memory |
+| **Async/Await** | All fetch calls | Handle API calls properly |
+| **Error Handling** | Try-catch in handlers | Show errors to user |
+| **Form Handling** | `AddTodoForm.tsx` | Handle user input |
+| **Component Composition** | TodoCard + AddTodoForm | Reusable components |
+| **Loading States** | Disable buttons during fetch | Prevent double-submission |
+
+## Common Improvements
+
+Add to your todo app:
+
+### Search
+```typescript
+const [search, setSearch] = useState("");
+const filtered = todos.filter(t => t.title.includes(search));
+```
+
+### Due Dates
+```rust
+pub struct Todo {
+    pub id: i32,
+    pub title: String,
+    pub completed: bool,
+    pub due_date: Option<String>,
+}
+```
+
+### Categories/Tags
+```rust
+pub struct Todo {
+    pub category: String,
+    pub priority: i32, // 1-5
+}
+```
+
+### Bulk Operations
+```rust
+pub async fn mark_all_completed() -> ... {
+    sqlx::query("UPDATE todos SET completed = true").execute(&db)
+}
+```
+
+## Next Steps
+
+- **[API Patterns](/docs/development/api-patterns)** — Learn pagination, validation, middleware
+- **[Frontend Patterns](/docs/guides/frontend-patterns)** — Master React hooks and state management
+- **[Testing](/docs/development/testing)** — Test your components and API endpoints
+- **[Deploy to Railway](/docs/deployment/railway)** — Ship your app to production
+

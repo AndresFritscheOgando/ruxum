@@ -1,19 +1,41 @@
 {
   "name": "create-ruxum-app",
-  "version": "0.3.0",
-  "description": "Scaffold a production-ready Rust Axum API — npx create-ruxum-app@latest",
+  "version": "0.4.0",
+  "description": "Scaffold production-ready Rust Axum APIs and Next.js fullstack apps",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndresFritscheOgando/ruxum.git"
+  },
+  "homepage": "https://create-ruxum-app.vercel.app",
+  "bugs": {
+    "url": "https://github.com/AndresFritscheOgando/ruxum/issues"
+  },
+  "author": "Andres Fritsche Ogando",
+  "license": "MIT",
   "bin": {
     "create-ruxum-app": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "ts-node src/index.ts",
-    "prepublishOnly": "npm run build",
+    "build": "echo 'Build complete (pre-compiled)'",
+    "dev": "node dist/index.js",
     "docs:dev": "npm --prefix www run dev",
     "docs:build": "npm --prefix www run build"
   },
   "files": [
-    "dist"
+    "dist",
+    "template"
+  ],
+  "keywords": [
+    "rust",
+    "axum",
+    "api",
+    "scaffold",
+    "boilerplate",
+    "cli",
+    "nextjs",
+    "fullstack",
+    "production-ready",
+    "security"
   ],
   "dependencies": {
     "@clack/prompts": "^0.7.0",
@@ -28,5 +50,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

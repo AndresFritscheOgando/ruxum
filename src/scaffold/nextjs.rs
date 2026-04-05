@@ -27,6 +27,8 @@ pub fn scaffold(dir: &Path, cfg: &NextjsConfig, project_name: &str) -> Result<()
     }
 
     write(dir, "package.json", &package_json(cfg, project_name))?;
+    write(dir, ".nvmrc", nvmrc())?;
+    write(dir, ".node-version", node_version())?;
     write(dir, "tsconfig.json", tsconfig_json())?;
     write(dir, "next.config.mjs", &next_config(cfg))?;
     write(dir, "src/app/layout.tsx", &layout_tsx(cfg, project_name))?;
@@ -207,6 +209,14 @@ fn package_json(cfg: &NextjsConfig, project_name: &str) -> String {
         .replace("{{scripts}}", &scripts_str)
         .replace("{{dependencies}}", &deps_str)
         .replace("{{devDependencies}}", &dev_deps_str)
+}
+
+fn nvmrc() -> &'static str {
+    include_str!("../templates/nextjs/nvmrc.rs")
+}
+
+fn node_version() -> &'static str {
+    include_str!("../templates/nextjs/node_version.rs")
 }
 
 fn tsconfig_json() -> &'static str {
